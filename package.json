@@ -1,6 +1,6 @@
 {
   "name": "fgcusecroles",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "A bot for the FGCU Software Engineering Club to assign roles to new users in the Discord.",
   "main": "src/main.js",
   "private": true,
@@ -20,6 +20,9 @@
   "homepage": "https://github.com/tgayle/FGCUSECRoles#readme",
   "dependencies": {
     "discord.js": "^11.4.2",
-    "dotenv": "^6.1.0"
+    "dotenv": "^6.1.0",
+    "moment": "^2.22.2",
+    "winston": "^3.1.0",
+    "winston-transport": "^4.2.0"
   }
 }

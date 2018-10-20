@@ -1,7 +1,12 @@
 const Discord = require('discord.js'); // Import Discord Library
 const Settings = require('./settings'); // Import settings from the settings.js file.
+const moment = require ('moment'); // Import time/date formatting library.
 
-const createServerRoles = require('./createServerRoles');
+const Logger = require('./logging/Logger'); // Import logger for tracking bot progress.
+const addDiscordChannelLogger = require('./logging/addDiscordChannelLogger');
+
+// Import method responsible for creating roles.
+const createServerRoles = require('./createServerRoles'); 
 const discordClient = new Discord.Client();
 
 /**
@@ -17,7 +22,8 @@ const discordClient = new Discord.Client();
  * 'await' keyword in front of it to have the function wait for that to finish before continuing.
  */
 discordClient.on('ready', async function () {
-  console.log('FSEC Role Bot logged in as ' + discordClient.user.tag + '!');
+  addDiscordChannelLogger(discordClient);
+  Logger.debug('FSEC Role Bot logged in as ' + discordClient.user.tag + '!')
   
   // Generate invite link for bot with a list of permissions we want the bot to have.
   const inviteLink = await discordClient.generateInvite(['CONNECT',
@@ -27,15 +33,16 @@ discordClient.on('ready', async function () {
     'SEND_MESSAGES',   
     'VIEW_CHANNEL']);
   
-  console.log('Invite me to your server with this link: ' + inviteLink);
+  Logger.debug('Invite me to your server with this link: ' + inviteLink);
   
   /*
   Set the bot's status on Discord to show when the server was last started.
+  Date is formatted as "MMMM Do YYYY, h:mm:ss a" -> "January 1st 2018, 12:01:00 am"
   */ 
   discordClient.user.setPresence({
     game: {
       type: "WATCHING",
-      name: "Server last started at " + new Date().toDateString(),
+      name: "Server last started at " + moment().format('MMMM Do YYYY, h:mm:ss a'),
     }
   });
 
@@ -53,12 +60,19 @@ discordClient.on('ready', async function () {
 discordClient.on('message', function (message) {
   if (message.content.startsWith(Settings.COMMAND_PREFIX + 'order66') && 
       message.member.hasPermission('ADMINISTRATOR') && !message.author.bot) {
-    message.channel.send('Removing roles I added.');
+
+    Logger.info('User ' + message.author.tag + ' requested all roles be removed.');
+    message.channel.send('Removing roles added.');
     let rolesRemoved = [];
+
     message.guild.roles.forEach(async function (role) {
       if (Settings.allEqualRoles.includes(role.name)) {
         rolesRemoved.push(role.name);
-        await role.delete('Admin requested role be removed.')
+        try {
+          await role.delete('Admin requested role be removed.');
+        } catch (error) {
+          Logger.error(error);
+        }
       }
     });
 
@@ -70,5 +84,6 @@ discordClient.on('message', function (message) {
   }
 });
 
-
 discordClient.login(Settings.BOT_TOKEN); // Log into Discord.
+
+module.exports = discordClient; // Export the client for use in other files.

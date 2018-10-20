@@ -1,5 +1,6 @@
 const Settings = require('./settings');
 const Discord = require('discord.js');
+const Logger = require('./logging/Logger');
 
 /**
  * For each server this bot is connected to, we check if the roles in settings exist for this
@@ -26,7 +27,7 @@ function createServerRoles(discordClient) {
           permissions: Settings.equalRolePermissions,
         });
 
-        console.log('Created role ' + newRoleToCreate.name + ' in server ' + guild.name); 
+        Logger.info('Created role ' + newRoleToCreate.name + ' in server ' + guild.name); 
       }
     });
   });
