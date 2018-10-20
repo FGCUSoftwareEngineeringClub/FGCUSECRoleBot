@@ -7,6 +7,12 @@ const discordClient = new Discord.Client();
  * 
  * This is useful for doing things when the bot first starts running, such as setting a status or
  * printing a message.
+ * 
+ * This function is marked with the 'async' tag to say that it isn't sure exactly how long it will
+ * take for this function to complete. Changing the bot's status, adding roles, etc, all take time.
+ * 
+ * When you want to wait for something that takes time to finish before moving on, you place the 
+ * 'await' keyword in front of it to have the function wait for that to finish before continuing.
  */
 discordClient.on('ready', async function () {
   console.log('FSEC Role Bot logged in as ' + discordClient.user.tag + '!');
@@ -76,6 +82,7 @@ discordClient.on('message', function (message) {
       }
     });
 
+    //Prints a formatted message with the roles removed in a list.
     const rolesRemovedMessage = rolesRemoved.length + ' roles removed:\n' + rolesRemoved.join('\n');
     message.channel.send(rolesRemovedMessage, {
       code: true,
