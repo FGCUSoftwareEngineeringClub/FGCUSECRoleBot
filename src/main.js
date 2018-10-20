@@ -1,5 +1,7 @@
 const Discord = require('discord.js'); // Import Discord Library
 const Settings = require('./settings'); // Import settings from the settings.js file.
+
+const createServerRoles = require('./createServerRoles');
 const discordClient = new Discord.Client();
 
 /**
@@ -38,32 +40,10 @@ discordClient.on('ready', async function () {
   });
 
   /**
-   * For each server this bot is connected to, we check if the roles in settings exist for this
-   * server. If the role doesn't exist, create it.
+   * Create server roles if necessary. Any roles that aren't in the server that are in settings
+   * will be created.
    */
-  discordClient.guilds.forEach(async function (guild) {
-    const rolesWithEqualPermissions = Settings.allEqualRoles;
-    const allRolesOfCurrentGuild = guild.roles.array();
-
-    rolesWithEqualPermissions.forEach(async function (nameOfRole) {
-      /** Checks if role exists in server. This returns the role it does exist and returns
-       * 'undefined' if doesn't exist, which is why we check if the role is false OR undefined.
-       */
-      const doesRoleExistInThisServer = allRolesOfCurrentGuild.find(function (currentRole) {
-        return currentRole.name === nameOfRole;
-      });
-
-      if (doesRoleExistInThisServer === false || doesRoleExistInThisServer === undefined) {
-        const newRoleToCreate = await guild.createRole({
-          name: nameOfRole,
-          mentionable: true,
-          permissions: Settings.equalRolePermissions,
-        });
-
-        console.log('Created role ' + newRoleToCreate.name + ' in server ' + guild.name); 
-      }
-    });
-  })
+  createServerRoles(discordClient);
 });
 
 /**
@@ -82,7 +62,7 @@ discordClient.on('message', function (message) {
       }
     });
 
-    //Prints a formatted message with the roles removed in a list.
+    // Prints a formatted message with the roles removed in a list.
     const rolesRemovedMessage = rolesRemoved.length + ' roles removed:\n' + rolesRemoved.join('\n');
     message.channel.send(rolesRemovedMessage, {
       code: true,
