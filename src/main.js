@@ -1,12 +1,14 @@
 const Discord = require('discord.js'); // Import Discord Library
 const Settings = require('./settings'); // Import settings from the settings.js file.
-const moment = require ('moment'); // Import time/date formatting library.
+const moment = require('moment'); // Import time/date formatting library.
 
 const Logger = require('./logging/Logger'); // Import logger for tracking bot progress.
 const addDiscordChannelLogger = require('./logging/addDiscordChannelLogger');
 
-// Import method responsible for creating roles.
-const createServerRoles = require('./createServerRoles'); 
+// Import methods responsible for creating roles.
+const createServerRoles = require('./commands/createServerRoles'); 
+const removeAllRolesDebug = require('./commands/removeAllRolesDebug');
+const assignUserRoles = require('./commands/assignUserRoles');
 const discordClient = new Discord.Client();
 
 /**
@@ -53,34 +55,24 @@ discordClient.on('ready', async function () {
   createServerRoles(discordClient);
 });
 
-/**
- * Sets a temporary debug command. If an administrator runs this command, then all roles that the 
- * bot has listed in Settings are removed.
- */
 discordClient.on('message', function (message) {
-  if (message.content.startsWith(Settings.COMMAND_PREFIX + 'order66') && 
-      message.member.hasPermission('ADMINISTRATOR') && !message.author.bot) {
+  if (message.content.startsWith(Settings.COMMAND_PREFIX)) {
+    /**
+     * Get the first word in the user's message then remove the command prefix to get the actual
+     * command the user called.
+     */
+    const commandReceived = message.content.split(' ')[0].substring(Settings.COMMAND_PREFIX.length);
 
-    Logger.info('User ' + message.author.tag + ' requested all roles be removed.');
-    message.channel.send('Removing roles added.');
-    let rolesRemoved = [];
-
-    message.guild.roles.forEach(async function (role) {
-      if (Settings.allEqualRoles.includes(role.name)) {
-        rolesRemoved.push(role.name);
-        try {
-          await role.delete('Admin requested role be removed.');
-        } catch (error) {
-          Logger.error(error);
+    switch (commandReceived) {
+      case "order66":
+        if (message.member.hasPermission('ADMINISTRATOR') && !message.author.bot) {
+          removeAllRolesDebug(message);
         }
-      }
-    });
+        break;
 
-    // Prints a formatted message with the roles removed in a list.
-    const rolesRemovedMessage = rolesRemoved.length + ' roles removed:\n' + rolesRemoved.join('\n');
-    message.channel.send(rolesRemovedMessage, {
-      code: true,
-    });
+      case "role":
+        assignUserRoles(message);
+    }
   }
 });
 
