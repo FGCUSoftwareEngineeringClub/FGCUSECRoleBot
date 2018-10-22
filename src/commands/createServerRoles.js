@@ -1,6 +1,6 @@
-const Settings = require('./settings');
+const Settings = require('../settings');
 const Discord = require('discord.js');
-const Logger = require('./logging/Logger');
+const Logger = require('../logging/Logger');
 
 /**
  * For each server this bot is connected to, we check if the roles in settings exist for this

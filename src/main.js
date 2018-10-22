@@ -57,6 +57,7 @@ discordClient.on('ready', async function () {
 
 discordClient.on('message', function (message) {
   if (message.content.startsWith(Settings.COMMAND_PREFIX)) {
+    
     /**
      * Get the first word in the user's message then remove the command prefix to get the actual
      * command the user called.
@@ -72,6 +73,7 @@ discordClient.on('message', function (message) {
 
       case "role":
         assignUserRoles(message);
+        break;
     }
   }
 });

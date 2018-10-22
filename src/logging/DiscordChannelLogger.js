@@ -31,14 +31,13 @@ class DiscordChannelTransport extends BaseTransport {
 
   async log(message, onFinished) {
     if (this.loggingChannelExists) {
-      // If this message spans multiple lines, place it in a codeblock to try preserving formatting.
-
       /**
        * If the message argument is an object with a message property, message will be set to that,
        * otherwise it will be set to the message itself.
        */
       const messageText = message.message || message;
 
+      // If this message spans multiple lines, place it in a codeblock to try preserving formatting.
       await this.loggingChannel.send(messageText, {code: messageText.includes('\n')});
     }
     
