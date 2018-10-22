@@ -2,6 +2,9 @@ const Discord = require('discord.js');
 const Logger = require('../logging/Logger');
 const Settings = require('../settings');
 
+const rolesWithOverlapNotAllowed = Settings.equalRolesWithOverlapNotAllowed;
+
+
 /**
  * Assigns roles to a user. Valid roles that a user can request should be listed in Settings. A user
  * should be able to request multiple roles at once by separated them with a comma.
@@ -18,7 +21,7 @@ async function assignUserRole(message) {
   const messageWithoutCommand = message.content.substring(message.content.indexOf(' '));
 
   const requestedRoles = messageWithoutCommand.split(',').map(word => word.trim());
-  const rolesToAssignToUser = getRolesToAssignUser(requestedRoles);
+  const rolesToAssignToUser = getRolesToAssignUser(message.member, requestedRoles);
 
   
   // If there's any sort of conflict, let the user know and stop. Otherwise, assign the roles.
@@ -59,15 +62,24 @@ async function assignUserRole(message) {
  * Returns an object with a list of roles to assign a user and another object explaining if there's
  * any sort of conflict, such as trying to request roles that would conflict.
  * 
+ * @param {Discord.GuildMember} user
  * @param {string[]} requestedRoles
  * 
  * @returns {{ conflict: {message: string}, roles: string[] }} 
  */
-function getRolesToAssignUser(requestedRoles) {
+function getRolesToAssignUser(user, requestedRoles) {
   const rolesForUser = [];
 
   const overlappingRolesToAssign = getOverlappingRolesToAssign(requestedRoles);
   const nonOverlappingRolesToAssign = getNonOverlappingRolesToAssign(requestedRoles);
+
+  const nonOverlappingUserRoles = getUserConflictingRoles(user);
+
+  /*
+  Copy roles of a user that aren't allowed to overlap so that we can compare them all at once and
+  find conflicts.
+  */
+  nonOverlappingRolesToAssign.push(...nonOverlappingUserRoles);
 
   // Copy the contents of overlappingRolesToAssign into the rolesForUser array.
   rolesForUser.push(...overlappingRolesToAssign); 
@@ -121,13 +133,29 @@ function getOverlappingRolesToAssign(requestedRoles) {
  * @returns {string[]}
  */
 function getNonOverlappingRolesToAssign(requestedRoles) {
-  const rolesWithOverlapNotAllowed = Settings.equalRolesWithOverlapNotAllowed;
-
   const nonOverlappingRolesThatExist = requestedRoles.filter(function (requestedRole) {
     return rolesWithOverlapNotAllowed.includes(requestedRole);
   });
 
   return nonOverlappingRolesThatExist;
+}
+
+/**
+ * Returns a list of conflicting roles that a user already has been assigned.
+ * @param {Discord.GuildMember} user 
+ * 
+ * @returns {string[]} The names of the conflicting roles.
+ */
+function getUserConflictingRoles(user) {
+  const userConflictingRoles =  user.roles.filter(function (userRole) {
+    return rolesWithOverlapNotAllowed.includes(userRole.name);
+  });
+
+  const namesOfUserConflictingRoles = userConflictingRoles.array().map(function (role) {
+    return role.name;
+  });
+
+  return namesOfUserConflictingRoles;
 }
 
 module.exports = assignUserRole;
