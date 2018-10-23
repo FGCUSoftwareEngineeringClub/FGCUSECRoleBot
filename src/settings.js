@@ -7,30 +7,7 @@
  * To access an environment variable, use 'process.env.key', where key is the name of the variable.
  */
 const environmentVariables = require('dotenv').config();
-
-/**
- * Since people can take multiple classes at once, we have an array of classes where it makes sense
- * to have an overlap an classes where it doesn't make sense to have one.
- * 
- * You can't be a Freshman and a Senior at the same time, for instance, whereas someone could take
- * Assembly and Object Oriented Programming at the same time. This is currently not an exhaustive 
- * list of classes.
- */
-const equalRolesWithOverlapNotAllowed = ['Freshman', 'Sophomore', 'Junior', 'Senior', 'Soft. Eng. Major', 'STEM Major', 'Non-STEM Major', 'CIS Major'];
-const equalRolesWithOverlapAllowed = ['COP1500', 'PHY2041C'];
-
-/**
- * A list of all roles that should have the same level of permissions by default. 
- * 
- * The Array.slice() command below creates a copy of the original array instead of potentially 
- * combining the two original arrays.
- */
-let allEqualRoles = equalRolesWithOverlapNotAllowed.slice().concat(equalRolesWithOverlapAllowed.slice());
-
-// Remove duplicate names from the list in case there are any by filtering out names that have already occurred.
-allEqualRoles = allEqualRoles.filter(function (role, index, allRolesArray) {
-  return allRolesArray.indexOf(role) == index;
-})
+const roles = require('./roles/RolesAggregate'); // Import data about server roles.
 
 /**
  * A list of permissions that roles that should be equal in authority should have. For a list of 
@@ -54,10 +31,7 @@ const settings = {
   LOGGING_TEXT_CHANNEL: process.env.LOGGING_TEXT_CHANNEL,
   PRIMARY_SERVER_ID: process.env.PRIMARY_SERVER_ID,
   
-  equalRolesWithOverlapAllowed: equalRolesWithOverlapAllowed,
-  equalRolesWithOverlapNotAllowed: equalRolesWithOverlapNotAllowed,
-  allEqualRoles: allEqualRoles,
-  equalRolePermissions: equalRolePermissions
+  roles: roles,
 };
 
 // Export these settings for use in other files.

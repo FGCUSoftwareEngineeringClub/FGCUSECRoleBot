@@ -1,6 +1,7 @@
 const Settings = require('../settings');
 const Discord = require('discord.js');
 const Logger = require('../logging/Logger');
+const roles = require('../roles/RolesAggregate');
 
 /**
  * For each server this bot is connected to, we check if the roles in settings exist for this
@@ -9,7 +10,7 @@ const Logger = require('../logging/Logger');
  */
 function createServerRoles(discordClient) {
   discordClient.guilds.forEach(async function (guild) {
-    const rolesWithEqualPermissions = Settings.allEqualRoles;
+    const rolesWithEqualPermissions = roles.namesOfAllRoles;
     const allRolesOfCurrentGuild = guild.roles.array();
     
     rolesWithEqualPermissions.forEach(async function (nameOfRole) {
