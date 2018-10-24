@@ -13,10 +13,11 @@ const NonOverlappingRoleSet = require('./NonOverlappingRoleSet');
  */
 const STUDENT_YEARS = ['Freshman', 'Sophomore', 'Junior', 'Senior'];
 const MAJORS = ['Soft. Eng. Major', 'STEM Major', 'Non-STEM Major', 'CIS Major'];
-const equalRolesWithOverlapAllowed = ['COP1500', 'PHY2041C'];
+/** @type {string[]} */
+const equalRolesWithOverlapAllowed = [];
 
-const studentYearSet = new NonOverlappingRoleSet(STUDENT_YEARS);
-const studentMajorSet = new NonOverlappingRoleSet(MAJORS);
+const studentYearSet = new NonOverlappingRoleSet('Student Years', STUDENT_YEARS);
+const studentMajorSet = new NonOverlappingRoleSet('Majors', MAJORS);
 const equalRolesWithOverlapNotAllowed = [
   studentYearSet,
   studentMajorSet,

@@ -1,10 +1,11 @@
+//@ts-check
 const Logger = require('../logging/Logger');
-const Settings = require('../settings');
 const Discord = require('discord.js');
+const roles = require('../roles/RolesAggregate');
 
 /**
  * Sets a temporary debug command. If an administrator runs this command, then all roles that the 
- * bot has listed in Settings are removed.
+ * bot has listed in the RolesAggregate are removed.
  * @param {Discord.Message} message 
  */
 function removeAllRoles(message) {
@@ -13,7 +14,7 @@ function removeAllRoles(message) {
   let rolesRemoved = [];
 
   message.guild.roles.forEach(async function (role) {
-    if (Settings.allEqualRoles.includes(role.name)) {
+    if (roles.namesOfAllRoles.includes(role.name)) {
       rolesRemoved.push(role.name);
       try {
         await role.delete('Admin requested role be removed.');

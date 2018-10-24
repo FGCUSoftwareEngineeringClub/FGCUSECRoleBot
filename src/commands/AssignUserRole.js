@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 const Logger = require('../logging/Logger');
 const roles = require('../roles/RolesAggregate');
 const NonOverlappingRoleSet = require('../roles/NonOverlappingRoleSet');
-const rolesWithOverlapNotAllowed = roles.namesOfNonOverlappingRoles;
+const allRolesMessage = require('../roles/AllAvailableRolesMessage');
 
 /**
  * Assigns roles to a user. Valid roles that a user can request should be listed in Settings. A user
@@ -14,7 +14,8 @@ const rolesWithOverlapNotAllowed = roles.namesOfNonOverlappingRoles;
 async function assignUserRole(message) {
   /**
    * Get all the arguments a user adds to a message by returning the message starting after the
-   * first space, or after the initial command. 
+   * first space, or after the initial command. If no commands are supplied then the index is -1, 
+   * however.
    * 
    * Example: "!!role Software Engineering" would return "Software Engineering"
    */
@@ -24,8 +25,8 @@ async function assignUserRole(message) {
    * Separates each of the roles requested and removes extra spaces around them.
    */
   const requestedRoles = messageWithoutCommand.split(',').map(word => word.trim());
-  if (requestedRoles.length === 0) {
-    printAvailableRoles();
+  if (requestedRoles.length === 0 || message.content.indexOf(' ') == -1) {
+    message.channel.send(allRolesMessage, {code: true});
     return;
   }
   const overlappingRolesToAssign = getOverlappingRolesThatExist(requestedRoles);
@@ -41,8 +42,8 @@ async function assignUserRole(message) {
   await populateMapWithUserPreexistingRoles(message.member, nonOverlappingRolesToAssignMap);
 
   for (const nonOverlappingRequestedRole of nonOverlappingRolesToAssignNames) {
-    const setThisRoleBelongsTo = roles.getNonOverlappingSetFromName(nonOverlappingRequestedRole);
-    nonOverlappingRolesToAssignMap.set(setThisRoleBelongsTo, nonOverlappingRequestedRole);
+    const theSetThisRoleBelongsTo = roles.getNonOverlappingSetFromName(nonOverlappingRequestedRole);
+    nonOverlappingRolesToAssignMap.set(theSetThisRoleBelongsTo, nonOverlappingRequestedRole);
   }
 
   const nonOverlappingRolesToAssign = Array.from(nonOverlappingRolesToAssignMap.values());
@@ -52,12 +53,16 @@ async function assignUserRole(message) {
   const rolesTheUserCanReceive = getRolesUserDoesNotHave(message.member, serverRolesToAssign);
 
   if (rolesTheUserCanReceive.length === 0) {
-    message.reply('No roles could be assigned because you likely already have them.');
-    Logger.info(message.author.tag + ' tried to request roles that it seems like they already have.')
+    message.reply('No roles could be assigned because you likely already have them, or they don\t exist.');
+
+    const loggingMessage = message.author.tag + ' tried to request roles that doesn\t exist or they already have: ' + requestedRoles.join(', ');
+    Logger.info(loggingMessage);
   } else {
     await message.member.addRoles(rolesTheUserCanReceive);
+
     message.reply(`You were assigned: ${rolesTheUserCanReceive.join(', ')}`);
     const namesOfServerRolesAssigned = rolesTheUserCanReceive.map(role => role.name);
+    
     const loggingMessage = `User ${message.author.tag} ${message.member.nickname || ''} was assigned ${namesOfServerRolesAssigned.join(', ')}`;
     Logger.info(loggingMessage);
   }
@@ -153,7 +158,4 @@ async function populateMapWithUserPreexistingRoles(user, map) {
   }
 }
 
-function printAvailableRoles() {
-  // TODO: Print out available roles and show overlapping and non-overlapping roles.`
-}
 module.exports = assignUserRole;

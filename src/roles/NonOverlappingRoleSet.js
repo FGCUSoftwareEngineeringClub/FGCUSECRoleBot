@@ -7,10 +7,16 @@ const Discord = require('discord.js');
 class NonOverlappingRoleSet {
   /**
    *
+   * @param {string} nameOfSet
    * @param {string[]} roles
    */
-  constructor(roles) {
+  constructor(nameOfSet, roles) {
+    this.nameOfSet = nameOfSet;
     this.roles = roles;
+  }
+
+  getNameOfSet() {
+    return this.nameOfSet;
   }
 
   getRoles() {
