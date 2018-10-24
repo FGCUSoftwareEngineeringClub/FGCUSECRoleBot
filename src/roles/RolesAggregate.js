@@ -49,6 +49,22 @@ const roles = {
   namesOfNonOverlappingRoles: namesOfAllNonOverlappingRoles,
   namesOfOverlappingRoles: equalRolesWithOverlapAllowed,
   nonOverlappingRoleSets: equalRolesWithOverlapNotAllowed,
+
+  getNonOverlappingSetFromName: getNonOverlappingSetFromName
 };
+
+/**
+ * Returns the NonOverlappingRoleSet containing the given role.
+ * @param {string} roleName The name of the role to search for.
+ * @returns {NonOverlappingRoleSet | undefined}
+ */
+function getNonOverlappingSetFromName(roleName) {
+  for (const roleSet of equalRolesWithOverlapNotAllowed) {
+    if (roleSet.contains(roleName)) {
+      return roleSet;
+    }
+  }
+  return undefined;
+}
 
 module.exports = roles;

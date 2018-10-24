@@ -8,7 +8,7 @@ const addDiscordChannelLogger = require('./logging/addDiscordChannelLogger');
 // Import methods responsible for creating roles.
 const createServerRoles = require('./commands/createServerRoles'); 
 const removeAllRolesDebug = require('./commands/removeAllRolesDebug');
-const assignUserRoles = require('./commands/assignUserRoles');
+const assignUserRoles = require('./commands/AssignUserRole');
 const discordClient = new Discord.Client();
 
 /**
