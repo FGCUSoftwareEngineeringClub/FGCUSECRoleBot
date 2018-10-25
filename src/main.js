@@ -1,6 +1,5 @@
 const Discord = require('discord.js'); // Import Discord Library
 const Settings = require('./settings'); // Import settings from the settings.js file.
-const moment = require('moment'); // Import time/date formatting library.
 
 const Logger = require('./logging/Logger'); // Import logger for tracking bot progress.
 const addDiscordChannelLogger = require('./logging/addDiscordChannelLogger');
@@ -102,6 +101,7 @@ discordClient.on('message', function (message) {
 
       case "ping":
         message.reply('Pong!');
+        break;
     }
   }
 });

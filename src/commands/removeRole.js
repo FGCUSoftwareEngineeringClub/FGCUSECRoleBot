@@ -10,14 +10,19 @@ async function removeRoles(message) {
   const roles = messageWithoutCommand.split(',').map(word => word.trim());
   const user = message.member;
 
-  // If the name of the current role is in the roles array, then remove it.
-  const rolesToRemove = user.roles.filter(function (role) {
-    return roles.includes(role.name); 
-  });
-  const rolesToRemoveNames = rolesToRemove.array().join(', ');
-  await user.removeRoles(rolesToRemove);
-  message.reply(rolesToRemoveNames + " removed.");
-  Logger.info('Removed roles: ' + rolesToRemoveNames + ' from ' + user.user.tag);
+  // TODO: Only remove roles if they are a role managed by this boy.
+  if (roles.length > 0) {
+    // If the name of the current role is in the roles array, then remove it.
+    const rolesToRemove = user.roles.filter(function (role) {
+      return roles.includes(role.name);
+    });
+    const rolesToRemoveNames = rolesToRemove.array().join(', ');
+    await user.removeRoles(rolesToRemove);
+    message.reply(rolesToRemoveNames + " removed.");
+    Logger.info('Removed roles: ' + rolesToRemoveNames + ' from ' + user.user.tag);
+  } else {
+    message.reply('There were no roles to remove.');
+  }
 }
 
 module.exports = removeRoles;
