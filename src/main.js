@@ -49,8 +49,8 @@ discordClient.on('ready', async function () {
   */ 
   discordClient.user.setPresence({
     game: {
-      type: "WATCHING",
-      name: "Server last started at " + moment().format('MMMM Do YYYY, h:mm:ss a'),
+      type: "LISTENING",
+      name: Settings.COMMAND_PREFIX + "help for commands!",
     }
   });
 
@@ -62,6 +62,8 @@ discordClient.on('ready', async function () {
 });
 
 discordClient.on('message', function (message) {
+  if (message.channel.type === 'dm') return; // Ignore direct messages.
+
   if (message.content.startsWith(Settings.COMMAND_PREFIX)) {
     
     /**
@@ -71,7 +73,7 @@ discordClient.on('message', function (message) {
     const commandReceived = message.content.split(' ')[0].substring(Settings.COMMAND_PREFIX.length);
 
     // TODO: Create a cleaner/modular command loader.
-    switch (commandReceived) {
+    switch (commandReceived.toLowerCase()) {
       case "order66":
         if (message.member.hasPermission('ADMINISTRATOR') && !message.author.bot) {
           removeAllRolesDebug(message);
@@ -97,6 +99,9 @@ discordClient.on('message', function (message) {
       case "help":
         helpCommand(message);
         break;
+
+      case "ping":
+        message.reply('Pong!');
     }
   }
 });
