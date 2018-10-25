@@ -10,7 +10,7 @@ let allRolesMessage = `Non-Overlapping Roles (Only one from each category.): \n`
 if (roles.namesOfNonOverlappingRoles.length > 0) {
   for (const set of roles.nonOverlappingRoleSets) {
     allRolesMessage += `  ${set.nameOfSet}:
-      ${set.getRoles().join('\n    ')}\n\n`
+    ${set.getRoles().join('\n    ')}\n\n`
   } 
 }
 

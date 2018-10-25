@@ -81,7 +81,7 @@ discordClient.on('message', function (message) {
         break;
 
       case "roles":
-        message.channel.send(allAvailableRolesMessage);
+        message.channel.send(allAvailableRolesMessage, {code: true});
         break;
 
       case "about":
