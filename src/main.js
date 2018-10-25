@@ -11,6 +11,8 @@ const removeAllRolesDebug = require('./commands/removeAllRolesDebug');
 const assignUserRoles = require('./commands/AssignUserRole');
 const printAboutCommand = require('./commands/about');
 const helpCommand = require('./commands/help');
+const removeRoleCommand = require('./commands/removeRole');
+
 const allAvailableRolesMessage = require('./roles/AllAvailableRolesMessage');
 
 const discordClient = new Discord.Client();
@@ -82,6 +84,10 @@ discordClient.on('message', function (message) {
 
       case "roles":
         message.channel.send(allAvailableRolesMessage, {code: true});
+        break;
+
+      case "removerole":
+        removeRoleCommand(message);
         break;
 
       case "about":

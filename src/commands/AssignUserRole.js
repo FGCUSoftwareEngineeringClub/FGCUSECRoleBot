@@ -23,6 +23,9 @@ async function assignUserRole(message) {
    */
   const messageWithoutCommand = message.content.substring(message.content.indexOf(' '));
 
+  /** Update user member in case their data changes. */
+  message.member = await message.guild.fetchMember(message.member, false); 
+
   /**
    * Separates each of the roles requested and removes extra spaces around them.
    */
@@ -53,17 +56,17 @@ async function assignUserRole(message) {
   const serverRolesToAssign = getServerRolesFromNames(message.guild, allRolesToAssignUser);
 
   const rolesTheUserCanReceive = getRolesUserDoesNotHave(message.member, serverRolesToAssign);
+  const namesOfServerRolesAssigned = rolesTheUserCanReceive.map(role => role.name);
 
   if (rolesTheUserCanReceive.length === 0) {
-    message.reply('No roles could be assigned because you likely already have them, or they don\t exist.');
+    message.reply('No roles could be assigned because you likely already have them, or they don\'t exist.');
 
-    const loggingMessage = message.author.tag + ' tried to request roles that doesn\t exist or they already have: ' + requestedRoles.join(', ');
+    const loggingMessage = message.author.tag + ' tried to request roles that doesn\'t exist or they already have: ' + requestedRoles.join(', ');
     Logger.info(loggingMessage);
   } else {
     await message.member.addRoles(rolesTheUserCanReceive);
 
-    message.reply(`You were assigned: ${rolesTheUserCanReceive.join(', ')}`);
-    const namesOfServerRolesAssigned = rolesTheUserCanReceive.map(role => role.name);
+    message.reply(`You were assigned: ${namesOfServerRolesAssigned.join(', ')}`);
     
     const loggingMessage = `User ${message.author.tag} ${message.member.nickname || ''} was assigned ${namesOfServerRolesAssigned.join(', ')}`;
     Logger.info(loggingMessage);
@@ -138,8 +141,7 @@ function getRolesUserDoesNotHave(user, rolesToCheck) {
  * @param {Map<NonOverlappingRoleSet, string>} map The map to place the results into.
  */
 async function populateMapWithUserPreexistingRoles(user, map) {
-  const updatedUser = await user.guild.fetchMember(user, false);
-  const userRolesAsStrings = updatedUser.roles.map(function (role) {
+  const userRolesAsStrings = user.roles.map(function (role) {
     return role.name;
   });
   const nonOverlappingRolesOfAUser = getNonOverlappingRolesThatExist(userRolesAsStrings);
@@ -151,8 +153,8 @@ async function populateMapWithUserPreexistingRoles(user, map) {
      * If the user already has AT LEAST one role in this conflicting set, then remove all 
      * roles of this set.
      */
-    if (updatedUser.roles.array().some(role => theSetOfThisRole.getRoles().includes(role.name))) {
-      const serverRolesFromNames = getServerRolesFromNames(updatedUser.guild, theSetOfThisRole.getRoles());
+    if (user.roles.array().some(role => theSetOfThisRole.getRoles().includes(role.name))) {
+      const serverRolesFromNames = getServerRolesFromNames(user.guild, theSetOfThisRole.getRoles());
       await user.removeRoles(serverRolesFromNames);
       Logger.info(`Removed roles ${theSetOfThisRole.getRoles().join(', ')} from ${user.user.tag} ${user.nickname || ''}`);
     }

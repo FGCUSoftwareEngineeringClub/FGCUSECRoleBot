@@ -13,6 +13,7 @@ This bot runs using Node.js, a way of running Javascript on the server, and the 
 
 * [x] Printing a list of all available roles.
 * [x] Help Command
+* [ ] Reporting issues and sending to admins.
 * [ ] Staggering logging messages to prevent spam.
 * [ ] Music Bot Functionality?
 
