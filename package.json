@@ -1,6 +1,6 @@
 {
   "name": "fgcusecroles",
-  "version": "0.0.4",
+  "version": "1.0.0",
   "description": "A bot for the FGCU Software Engineering Club to assign roles to new users in the Discord.",
   "main": "src/main.js",
   "private": true,

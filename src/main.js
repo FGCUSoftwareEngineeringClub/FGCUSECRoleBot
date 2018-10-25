@@ -10,6 +10,9 @@ const createServerRoles = require('./commands/createServerRoles');
 const removeAllRolesDebug = require('./commands/removeAllRolesDebug');
 const assignUserRoles = require('./commands/AssignUserRole');
 const printAboutCommand = require('./commands/about');
+const helpCommand = require('./commands/help');
+const allAvailableRolesMessage = require('./roles/AllAvailableRolesMessage');
+
 const discordClient = new Discord.Client();
 
 /**
@@ -65,6 +68,7 @@ discordClient.on('message', function (message) {
      */
     const commandReceived = message.content.split(' ')[0].substring(Settings.COMMAND_PREFIX.length);
 
+    // TODO: Create a cleaner/modular command loader.
     switch (commandReceived) {
       case "order66":
         if (message.member.hasPermission('ADMINISTRATOR') && !message.author.bot) {
@@ -76,8 +80,16 @@ discordClient.on('message', function (message) {
         assignUserRoles(message);
         break;
 
+      case "roles":
+        message.channel.send(allAvailableRolesMessage);
+        break;
+
       case "about":
         printAboutCommand(message);
+        break;
+
+      case "help":
+        helpCommand(message);
         break;
     }
   }
