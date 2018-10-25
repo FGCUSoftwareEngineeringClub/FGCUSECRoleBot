@@ -9,6 +9,8 @@ const allRolesMessage = require('../roles/AllAvailableRolesMessage');
  * Assigns roles to a user. Valid roles that a user can request should be listed in Settings. A user
  * should be able to request multiple roles at once by separated them with a comma.
  * 
+ * Special thanks to Jeremy R. Martin.
+ * 
  * @param {Discord.Message} message 
  */
 async function assignUserRole(message) {

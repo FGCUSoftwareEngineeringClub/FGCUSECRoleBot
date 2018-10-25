@@ -5,10 +5,11 @@ const moment = require('moment'); // Import time/date formatting library.
 const Logger = require('./logging/Logger'); // Import logger for tracking bot progress.
 const addDiscordChannelLogger = require('./logging/addDiscordChannelLogger');
 
-// Import methods responsible for creating roles.
+// Import methods responsible for creating roles and other commands.
 const createServerRoles = require('./commands/createServerRoles'); 
 const removeAllRolesDebug = require('./commands/removeAllRolesDebug');
 const assignUserRoles = require('./commands/AssignUserRole');
+const printAboutCommand = require('./commands/about');
 const discordClient = new Discord.Client();
 
 /**
@@ -73,6 +74,10 @@ discordClient.on('message', function (message) {
 
       case "role":
         assignUserRoles(message);
+        break;
+
+      case "about":
+        printAboutCommand(message);
         break;
     }
   }
