@@ -1,7 +1,5 @@
 const roles = require('./RolesAggregate');
 
-roles.nonOverlappingRoleSets;
-
 let allRolesMessage = `Non-Overlapping Roles (Only one from each category.): \n`;
 
 /**
@@ -9,12 +7,20 @@ let allRolesMessage = `Non-Overlapping Roles (Only one from each category.): \n`
  * each set is indented by one level, and the roles of that set are indented by another level, hence
  * the various spaces below.
  */
-for (const set of roles.nonOverlappingRoleSets) {
-  allRolesMessage += `  ${set.nameOfSet}:
-    ${set.getRoles().join('\n    ')}\n\n`
-} 
+if (roles.namesOfNonOverlappingRoles.length > 0) {
+  for (const set of roles.nonOverlappingRoleSets) {
+    allRolesMessage += `  ${set.nameOfSet}:
+      ${set.getRoles().join('\n    ')}\n\n`
+  } 
+}
 
-allRolesMessage += 'Overlapping Roles (Request as many of these as you want!)\n  ';
-allRolesMessage += roles.namesOfOverlappingRoles.join('\n  ');
+if (roles.namesOfOverlappingRoles.length > 0) {
+  allRolesMessage += 'Overlapping Roles (Request as many of these as you want!)\n  ';
+  allRolesMessage += roles.namesOfOverlappingRoles.join('\n  ');
+}
+
+if (roles.namesOfAllRoles.length === 0) {
+  allRolesMessage = "No roles available.";
+}
 
 module.exports = allRolesMessage;
