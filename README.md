@@ -11,10 +11,10 @@ This bot runs using Node.js, a way of running Javascript on the server, and the 
 ---
 ## Todo:
 
-* [ ] Printing a list of all available roles.
+* [x] Printing a list of all available roles.
+* [x] Help Command
 * [ ] Staggering logging messages to prevent spam.
 * [ ] Music Bot Functionality?
-* [ ] Help Command
 
 ---
 ## Want to contribute?
