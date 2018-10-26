@@ -106,6 +106,13 @@ discordClient.on('message', function (message) {
   }
 });
 
+/**
+ * When the bot is invited to a server, try to create all equal roles listed in settings.
+ */
+discordClient.on('guildCreate', function (serverJoined) {
+  createServerRoles(discordClient);
+});
+
 discordClient.login(Settings.BOT_TOKEN); // Log into Discord.
 
 module.exports = discordClient; // Export the client for use in other files.
