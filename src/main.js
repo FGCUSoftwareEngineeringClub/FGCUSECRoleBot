@@ -1,5 +1,6 @@
 const Discord = require('discord.js'); // Import Discord Library
 const Settings = require('./settings'); // Import settings from the settings.js file.
+const Commando = require('discord.js-commando');
 
 const Logger = require('./logging/Logger'); // Import logger for tracking bot progress.
 const addDiscordChannelLogger = require('./logging/addDiscordChannelLogger');
@@ -14,7 +15,9 @@ const removeRoleCommand = require('./commands/removeRole');
 
 const allAvailableRolesMessage = require('./roles/AllAvailableRolesMessage');
 
-const discordClient = new Discord.Client();
+const discordClient = new Commando.CommandoClient({
+  owner: Settings.botOwners,
+});
 
 /**
  * Sets a listener to run when the client is ready, or when it's successfully logged in.
