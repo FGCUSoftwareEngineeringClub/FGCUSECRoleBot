@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const Commando = require('discord.js-commando');
 
 const commandsAvailable = 
     "role: Request a role (Sophomore, Soft. Eng. Major, etc)\n" + 
@@ -14,6 +15,15 @@ const commandsAvailable =
  */
 function helpCommand(message) {
   message.channel.send(commandsAvailable, {code: true});
+}
+
+//TODO: Is this necessary?
+class HelpCommand extends Commando.Command {
+  constructor(client) {
+    super(client, {
+      name: help
+    })
+  }
 }
 
 module.exports = helpCommand;
