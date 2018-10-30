@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const Commando = require('discord.js-commando');
-const Logger = require('../logging/Logger');
-const Settings = require('../settings');
+const Logger = require('../../logging/Logger');
+const Settings = require('../../settings');
 
 class RemoveRoleCommand extends Commando.Command {
   constructor(client) {
@@ -18,6 +18,7 @@ class RemoveRoleCommand extends Commando.Command {
           key: 'role',
           infinite: true,
           label: 'roles',
+          type: 'string',
           prompt: 'What roles would you like removed?',
 
           /**
@@ -32,12 +33,12 @@ class RemoveRoleCommand extends Commando.Command {
 
   /**
    * @param {Commando.CommandMessage} message The message that triggered this command.
-   * @param {object} arguments Any arguments passed in with this commands.
-   * @param {string[]} arguments.role The roles requested to be removed.
+   * @param {object} args Any arguments passed in with this commands.
+   * @param {string[]} args.role The roles requested to be removed.
    */
-  async run(message, arguments) {
+  async run(message, args) {
     const user = message.member;
-    const rolesRequested = arguments.role;
+    const rolesRequested = args.role;
 
     if (rolesRequested.length > 0) {
       // If the name of the current role is in the roles array and the bot manages this role, then remove it.

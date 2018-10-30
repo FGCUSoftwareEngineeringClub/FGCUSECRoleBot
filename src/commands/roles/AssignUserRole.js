@@ -1,10 +1,10 @@
 //@ts-check
 const Discord = require('discord.js');
 const Commando = require('discord.js-commando');
-const Logger = require('../logging/Logger');
-const roles = require('../roles/RolesAggregate');
-const Settings = require('../settings');
-const NonOverlappingRoleSet = require('../roles/NonOverlappingRoleSet');
+const Logger = require('../../logging/Logger');
+const roles = require('../../roles/RolesAggregate');
+const Settings = require('../../settings');
+const NonOverlappingRoleSet = require('../../roles/NonOverlappingRoleSet');
 
 /**
  * Assigns roles to a user. Valid roles that a user can request should be listed in Settings. A user
@@ -21,28 +21,23 @@ class AssignUserRoleCommand extends Commando.Command {
       description: 'Assigns roles to the user',
       group: 'roles',
       guildOnly: true,
-      memberName: 'setRole',
+      memberName: 'setrole',
 
       args: [
         {
-          infinite: true,
+          infinite: true, // sets that there's no definite number of strings in this argument.
           key: 'roles',
           prompt: '',
           wait: 0,
+          type: 'string',
+
           /** @param {string} inputText */
           validate: (inputText) => {
             if (inputText.length === 0) {
-              return true;
-            } else {
               return `Please specify a role or roles to request. ${Settings.COMMAND_PREFIX}help for more info.`
             }
+            return true;
           },
-
-          /**
-           * Split arguments by commas and remove trailing spaces.
-           * @param {string} input
-           */
-          parse: (input) => input.split(',').map(untrimmedString => untrimmedString.trim()),
         }
       ]
     });
@@ -50,11 +45,11 @@ class AssignUserRoleCommand extends Commando.Command {
 
   /**
   * @param {Commando.CommandMessage} message
-  * @param {object} arguments 
-  * @param {string[]} arguments.roles
+  * @param {object} args 
+  * @param {string[]} args.roles
   */
-  async run(message, arguments) {
-    const requestedRoles = arguments.roles;
+  async run(message, args) {
+    const requestedRoles = message.argString.split(',').map(untrimmedString => untrimmedString.trim())
     const overlappingRolesToAssign = getOverlappingRolesThatExist(requestedRoles);
     const nonOverlappingRolesToAssignNames = getNonOverlappingRolesThatExist(requestedRoles);
   

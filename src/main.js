@@ -1,5 +1,6 @@
 const Discord = require('discord.js'); // Import Discord Library
 const Settings = require('./settings'); // Import settings from the settings.js file.
+const path = require('path'); // Module for locating paths and files.
 const Commando = require('discord.js-commando');
 
 const Logger = require('./logging/Logger'); // Import logger for tracking bot progress.
@@ -7,16 +8,10 @@ const addDiscordChannelLogger = require('./logging/addDiscordChannelLogger');
 
 // Import methods responsible for creating roles and other commands.
 const createServerRoles = require('./commands/createServerRoles'); 
-const removeAllRolesDebug = require('./commands/removeAllRolesDebug');
-const assignUserRoles = require('./commands/AssignUserRole');
-const printAboutCommand = require('./commands/about');
-const helpCommand = require('./commands/help');
-const removeRoleCommand = require('./commands/removeRole');
-
-const allAvailableRolesMessage = require('./roles/AllAvailableRolesMessage');
 
 const discordClient = new Commando.CommandoClient({
   owner: Settings.botOwners,
+  commandPrefix: Settings.COMMAND_PREFIX,
 });
 
 /**
@@ -63,51 +58,11 @@ discordClient.on('ready', async function () {
   createServerRoles(discordClient);
 });
 
-discordClient.on('message', function (message) {
-  if (message.channel.type === 'dm') return; // Ignore direct messages.
-
-  if (message.content.startsWith(Settings.COMMAND_PREFIX)) {
-    
-    /**
-     * Get the first word in the user's message then remove the command prefix to get the actual
-     * command the user called.
-     */
-    const commandReceived = message.content.split(' ')[0].substring(Settings.COMMAND_PREFIX.length);
-
-    // TODO: Create a cleaner/modular command loader.
-    switch (commandReceived.toLowerCase()) {
-      case "order66":
-        if (message.member.hasPermission('ADMINISTRATOR') && !message.author.bot) {
-          removeAllRolesDebug(message);
-        }
-        break;
-
-      case "role":
-        assignUserRoles(message);
-        break;
-
-      case "roles":
-        message.channel.send(allAvailableRolesMessage, {code: true});
-        break;
-
-      case "removerole":
-        removeRoleCommand(message);
-        break;
-
-      case "about":
-        printAboutCommand(message);
-        break;
-
-      case "help":
-        helpCommand(message);
-        break;
-
-      case "ping":
-        message.reply('Pong!');
-        break;
-    }
-  }
-});
+discordClient.registry.registerGroups([
+  ['roles', 'Roles']
+])
+discordClient.registry.registerDefaults();
+discordClient.registry.registerCommandsIn(path.join(__dirname, 'commands'));
 
 /**
  * When the bot is invited to a server, try to create all equal roles listed in settings.

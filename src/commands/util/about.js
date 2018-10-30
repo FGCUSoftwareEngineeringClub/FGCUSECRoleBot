@@ -1,3 +1,4 @@
+//@ts-check
 const Discord = require('discord.js');
 const moment = require('moment'); // Time/Date management library
 const os = require('os'); // Get information about device running bot
@@ -15,16 +16,18 @@ class AboutCommand extends Commando.Command {
   constructor(client) {
     super(client, {
       name: 'about',
-      guildOnly: false, // Set this to true if you want this command to work in a server chatroom.
+      group: 'util',
+      memberName: 'aboutbot',
+      guildOnly: false, // Set this to true if you only want this command to work in a server chatroom.
       description: 'Prints information about this bot.',
     });
   }
 
   /**
    * @param {Commando.CommandMessage} message 
-   * @param {string[]} arguments 
+   * @param {string[]} args 
    */
-  async run(message, arguments) {
+  async run(message, args) {
     const serverUptime = moment.duration(os.uptime(), 'seconds').humanize()
     const clientUptime = moment.duration(message.client.uptime, 'milliseconds').humanize();
   
