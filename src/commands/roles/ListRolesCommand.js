@@ -1,4 +1,6 @@
-const roles = require('./RolesAggregate');
+const Discord = require('discord.js');
+const Commando = require('discord.js-commando');
+const roles = require('../../roles/RolesAggregate');
 
 let allRolesMessage = `Non-Overlapping Roles (Only one from each category.): \n`;
 
@@ -23,4 +25,28 @@ if (roles.namesOfAllRoles.length === 0) {
   allRolesMessage = "No roles available.";
 }
 
-module.exports = allRolesMessage;
+class ListAvailableRolesCommand extends Commando.Command {
+  /**
+   * 
+   * @param {Commando.CommandoClient} client 
+   */
+  constructor(client) {
+    super(client, {
+      name: 'roles',
+      group: 'roles',
+      memberName: 'listroles',
+      guildOnly: true,
+      description: 'List roles a user can request.',
+    });
+  }
+
+  /**
+  * @param {Commando.CommandMessage} message
+  * @param {object} args
+  */
+  async run(message, args) {
+    return message.channel.send(allRolesMessage, {code: true});
+  }
+}
+
+module.exports = ListAvailableRolesCommand;

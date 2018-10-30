@@ -38,14 +38,14 @@ class RemoveRoleCommand extends Commando.Command {
    */
   async run(message, args) {
     const user = message.member;
-    const rolesRequested = args.role;
+    const rolesRequested = message.argString.split(',').map(input => input.trim());
 
     if (rolesRequested.length > 0) {
       // If the name of the current role is in the roles array and the bot manages this role, then remove it.
       const rolesToRemove = user.roles.filter(function (role) {
         return rolesRequested.includes(role.name) && Settings.roles.namesOfAllRoles.includes(role.name);
       });
-      const rolesToRemoveNames = rolesToRemove.array().join(', ');
+      const rolesToRemoveNames = rolesToRemove.array().map(role => role.name).join(', ');
       await user.removeRoles(rolesToRemove);
       Logger.info('Removed roles: ' + rolesToRemoveNames + ' from ' + user.user.tag);
       return message.reply(rolesToRemoveNames + " removed.");

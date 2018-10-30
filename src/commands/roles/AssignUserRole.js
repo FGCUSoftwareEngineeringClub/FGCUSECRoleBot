@@ -14,7 +14,7 @@ const NonOverlappingRoleSet = require('../../roles/NonOverlappingRoleSet');
  * 
  * @param {Discord.Message} message 
  */
-class AssignUserRoleCommand extends Commando.Command {
+class AssignUserRoleCommand extends Commando.Command { // TODO: Redo all of this.
   constructor(client) {
     super(client, {
       name: 'role',
