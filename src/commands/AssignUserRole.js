@@ -1,9 +1,10 @@
 //@ts-check
 const Discord = require('discord.js');
+const Commando = require('discord.js-commando');
 const Logger = require('../logging/Logger');
 const roles = require('../roles/RolesAggregate');
+const Settings = require('../settings');
 const NonOverlappingRoleSet = require('../roles/NonOverlappingRoleSet');
-const allRolesMessage = require('../roles/AllAvailableRolesMessage');
 
 /**
  * Assigns roles to a user. Valid roles that a user can request should be listed in Settings. A user
@@ -13,67 +14,86 @@ const allRolesMessage = require('../roles/AllAvailableRolesMessage');
  * 
  * @param {Discord.Message} message 
  */
-async function assignUserRole(message) {
-  /**
-   * Get all the arguments a user adds to a message by returning the message starting after the
-   * first space, or after the initial command. If no commands are supplied then the index is -1, 
-   * however.
-   * 
-   * Example: "!!role Software Engineering" would return "Software Engineering"
-   */
-  const messageWithoutCommand = message.content.substring(message.content.indexOf(' '));
+class AssignUserRoleCommand extends Commando.Command {
+  constructor(client) {
+    super(client, {
+      name: 'role',
+      description: 'Assigns roles to the user',
+      group: 'roles',
+      guildOnly: true,
+      memberName: 'setRole',
 
-  /** Update user member in case their data changes. */
-  message.member = await message.guild.fetchMember(message.member, false); 
+      args: [
+        {
+          infinite: true,
+          key: 'roles',
+          prompt: '',
+          wait: 0,
+          /** @param {string} inputText */
+          validate: (inputText) => {
+            if (inputText.length === 0) {
+              return true;
+            } else {
+              return `Please specify a role or roles to request. ${Settings.COMMAND_PREFIX}help for more info.`
+            }
+          },
 
-  /**
-   * Separates each of the roles requested and removes extra spaces around them.
-   */
-  const requestedRoles = messageWithoutCommand.split(',').map(word => word.trim());
-  if (requestedRoles.length === 0 || message.content.indexOf(' ') == -1) {
-    message.channel.send(allRolesMessage, {code: true});
-    return;
-  }
-  const overlappingRolesToAssign = getOverlappingRolesThatExist(requestedRoles);
-  const nonOverlappingRolesToAssignNames = getNonOverlappingRolesThatExist(requestedRoles);
-
-  /**
-   * Create a map where the key is the set that the nonoverlapping role belongs to and the value is
-   * the name of the role to assign. If a user requests multiple roles from the same set, they'll
-   * only get the last one requested.
-   * @type {Map<NonOverlappingRoleSet, string>}
-   */
-  const nonOverlappingRolesToAssignMap = new Map();
-  await populateMapWithUserPreexistingRoles(message.member, nonOverlappingRolesToAssignMap);
-
-  for (const nonOverlappingRequestedRole of nonOverlappingRolesToAssignNames) {
-    const theSetThisRoleBelongsTo = roles.getNonOverlappingSetFromName(nonOverlappingRequestedRole);
-    nonOverlappingRolesToAssignMap.set(theSetThisRoleBelongsTo, nonOverlappingRequestedRole);
+          /**
+           * Split arguments by commas and remove trailing spaces.
+           * @param {string} input
+           */
+          parse: (input) => input.split(',').map(untrimmedString => untrimmedString.trim()),
+        }
+      ]
+    });
   }
 
-  const nonOverlappingRolesToAssign = Array.from(nonOverlappingRolesToAssignMap.values());
-  const allRolesToAssignUser = nonOverlappingRolesToAssign.concat(overlappingRolesToAssign);
-  const serverRolesToAssign = getServerRolesFromNames(message.guild, allRolesToAssignUser);
-
-  const rolesTheUserCanReceive = getRolesUserDoesNotHave(message.member, serverRolesToAssign);
-  const namesOfServerRolesAssigned = rolesTheUserCanReceive.map(role => role.name);
-
-  if (rolesTheUserCanReceive.length === 0) {
-    message.reply('No roles could be assigned because you likely already have them, or they don\'t exist.');
-
-    const loggingMessage = message.author.tag + ' tried to request roles that doesn\'t exist or they already have: ' + requestedRoles.join(', ');
-    Logger.info(loggingMessage);
-  } else {
-    await message.member.addRoles(rolesTheUserCanReceive);
-
-    message.reply(`You were assigned: ${namesOfServerRolesAssigned.join(', ')}`);
-    
-    const loggingMessage = `User ${message.author.tag} ${message.member.nickname || ''} was assigned ${namesOfServerRolesAssigned.join(', ')}`;
-    Logger.info(loggingMessage);
+  /**
+  * @param {Commando.CommandMessage} message
+  * @param {object} arguments 
+  * @param {string[]} arguments.roles
+  */
+  async run(message, arguments) {
+    const requestedRoles = arguments.roles;
+    const overlappingRolesToAssign = getOverlappingRolesThatExist(requestedRoles);
+    const nonOverlappingRolesToAssignNames = getNonOverlappingRolesThatExist(requestedRoles);
+  
+    /**
+     * Create a map where the key is the set that the nonoverlapping role belongs to and the value is
+     * the name of the role to assign. If a user requests multiple roles from the same set, they'll
+     * only get the last one requested.
+     * @type {Map<NonOverlappingRoleSet, string>}
+     */
+    const nonOverlappingRolesToAssignMap = new Map();
+    await populateMapWithUserPreexistingRoles(message.member, nonOverlappingRolesToAssignMap);
+  
+    for (const nonOverlappingRequestedRole of nonOverlappingRolesToAssignNames) {
+      const theSetThisRoleBelongsTo = roles.getNonOverlappingSetFromName(nonOverlappingRequestedRole);
+      nonOverlappingRolesToAssignMap.set(theSetThisRoleBelongsTo, nonOverlappingRequestedRole);
+    }
+  
+    const nonOverlappingRolesToAssign = Array.from(nonOverlappingRolesToAssignMap.values());
+    const allRolesToAssignUser = nonOverlappingRolesToAssign.concat(overlappingRolesToAssign);
+    const serverRolesToAssign = getServerRolesFromNames(message.guild, allRolesToAssignUser);
+  
+    const rolesTheUserCanReceive = getRolesUserDoesNotHave(message.member, serverRolesToAssign);
+    const namesOfServerRolesAssigned = rolesTheUserCanReceive.map(role => role.name);
+  
+    if (rolesTheUserCanReceive.length === 0) {
+      const loggingMessage = message.author.tag + ' tried to request roles that doesn\'t exist or they already have: ' + requestedRoles.join(', ');
+      Logger.info(loggingMessage);
+      
+      return message.reply('No roles could be assigned because you likely already have them, or they don\'t exist.');
+    } else {
+      await message.member.addRoles(rolesTheUserCanReceive);
+      const loggingMessage = `User ${message.author.tag} ${message.member.nickname || ''} was assigned ${namesOfServerRolesAssigned.join(', ')}`;
+      Logger.info(loggingMessage);
+  
+      return message.reply(`You were assigned: ${namesOfServerRolesAssigned.join(', ')}`);
+      
+    }
   }
- }
-
-
+}
 
 /**
  * Returns the roles that are allowed to overlap that the user should be assigned.
@@ -162,4 +182,4 @@ async function populateMapWithUserPreexistingRoles(user, map) {
   }
 }
 
-module.exports = assignUserRole;
+module.exports = AssignUserRoleCommand;
