@@ -22,34 +22,27 @@ class AssignUserRoleCommand extends Commando.Command { // TODO: Redo all of this
       group: 'roles',
       guildOnly: true,
       memberName: 'setrole',
-
-      args: [
-        {
-          infinite: true, // sets that there's no definite number of strings in this argument.
-          key: 'roles',
-          prompt: '',
-          wait: 0,
-          type: 'string',
-
-          /** @param {string} inputText */
-          validate: (inputText) => {
-            if (inputText.length === 0) {
-              return `Please specify a role or roles to request. ${Settings.COMMAND_PREFIX}help for more info.`
-            }
-            return true;
-          },
-        }
-      ]
     });
   }
 
   /**
   * @param {Commando.CommandMessage} message
   * @param {object} args 
-  * @param {string[]} args.roles
   */
-  async run(message, args) {
-    const requestedRoles = message.argString.split(',').map(untrimmedString => untrimmedString.trim())
+  async run(message, args) { 
+    /**
+     * Pull arguments from argString instead of Commando parser since it doesn't handle comma separated
+     * arguments very well.
+     */
+    const requestedRoles = message.argString
+      .split(',')
+      .map(untrimmedString => untrimmedString.trim())
+      .filter(trimmedString => trimmedString.length !== 0);
+
+    if (requestedRoles.length === 0) { // Print roles if no arguments are passed.
+      return message.client.registry.commands.find('name', 'roles').run(message, args, false);
+    } 
+
     const overlappingRolesToAssign = getOverlappingRolesThatExist(requestedRoles);
     const nonOverlappingRolesToAssignNames = getNonOverlappingRolesThatExist(requestedRoles);
   
