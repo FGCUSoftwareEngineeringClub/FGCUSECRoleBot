@@ -32,8 +32,9 @@ class AboutCommand extends Commando.Command {
     const clientUptime = moment.duration(message.client.uptime, 'milliseconds').humanize();
   
     const richEmbed = new Discord.RichEmbed({
-        title: "**FSEC Role Bot**",
+        title: `**FSEC Role Bot**`,
         timestamp: new Date(),
+        color: 0x20C20E
     });
   
     richEmbed.setAuthor("FGCU Software Engineering Club", "https://i.imgur.com/OfRkVRS.jpg", "https://getinvolved.fgcu.edu/organization/seclub");
@@ -42,7 +43,7 @@ class AboutCommand extends Commando.Command {
     richEmbed.addField("Running On", `${os.type()} ${os.arch()}`);
     richEmbed.addField("Server Uptime", serverUptime);
   
-    richEmbed.setFooter("Made with ❤");
+    richEmbed.setFooter("Made with ❤ | Version " + process.env.npm_package_version);
   
     return message.channel.send(richEmbed);
   }
