@@ -71,6 +71,7 @@ discordClient.registry.registerDefaultCommands({
   prefix: false,
 });
 
+// Register commands in the commands directory.
 discordClient.registry.registerCommandsIn(path.join(__dirname, 'commands'));
 
 /**
