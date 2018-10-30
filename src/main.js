@@ -60,8 +60,17 @@ discordClient.on('ready', async function () {
 
 discordClient.registry.registerGroups([
   ['roles', 'Roles']
-])
-discordClient.registry.registerDefaults();
+]);
+
+discordClient.registry.registerDefaultTypes(); // Boilerplate to prepare bot for commands.
+discordClient.registry.registerDefaultGroups();
+discordClient.registry.registerDefaultCommands({
+  eval_: false,
+  help: true,
+  ping: true,
+  prefix: false,
+});
+
 discordClient.registry.registerCommandsIn(path.join(__dirname, 'commands'));
 
 /**
