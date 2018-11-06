@@ -19,7 +19,7 @@ This bot runs using Node.js, a way of running Javascript on the server, and the 
   * [ ] Case insensitivity when requesting a role.
 * [x] Printing a list of all available roles.
 * [x] Help Command
-* [ ] More modular command system.
+* [x] More modular command system.
 * [ ] Better error handling/recovery
 * [ ] Reporting issues and sending to admins.
 * [ ] Staggering logging messages to prevent spam.

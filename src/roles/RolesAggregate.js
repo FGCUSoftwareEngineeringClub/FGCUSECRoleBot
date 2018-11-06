@@ -51,21 +51,59 @@ const roles = {
   namesOfOverlappingRoles: equalRolesWithOverlapAllowed,
   nonOverlappingRoleSets: equalRolesWithOverlapNotAllowed,
 
-  getNonOverlappingSetFromName: getNonOverlappingSetFromName
+  getNonOverlappingSetFromName: getNonOverlappingSetFromName,
+  doesRoleExist: doesRoleExist,
+  doesOverlappingRoleExist: doesOverlappingRoleExist
 };
 
 /**
  * Returns the NonOverlappingRoleSet containing the given role.
  * @param {string} roleName The name of the role to search for.
- * @returns {NonOverlappingRoleSet | undefined}
+ * @param {boolean | undefined} caseInsensitive Whether or not case matters when comparing role names.
+ * @returns {NonOverlappingRoleSet | null}
  */
-function getNonOverlappingSetFromName(roleName) {
+function getNonOverlappingSetFromName(roleName, caseInsensitive) {
   for (const roleSet of equalRolesWithOverlapNotAllowed) {
+    if (caseInsensitive) {
+      const namesOfRolesInThisSetLowercase = roleSet.getRoles().map(roleName => roleName.toLowerCase());
+      const doesRoleSetContainGivenName = namesOfRolesInThisSetLowercase.includes(roleName.toLowerCase());
+
+      return doesRoleSetContainGivenName;
+    }
+
     if (roleSet.contains(roleName)) {
       return roleSet;
     }
   }
-  return undefined;
+  return null;
+}
+
+/**
+ * Returns true if a given role exists, regardless of whether or not they're overlapping.
+ * @param {string} role A string that's a role name to look for.
+ * @param {boolean | undefined} caseInsensitive Whether case matters in this search.
+ */
+function doesRoleExist(role, caseInsensitive) {
+  if (caseInsensitive) {
+    const allRolesAsLowercase = allEqualRoles.map(role => role.toLowerCase());
+    return allRolesAsLowercase.includes(role.toLowerCase());
+  }
+
+  return allEqualRoles.includes(role);
+}
+
+/**
+ * Returns true if the given role exists and is allowed to overlap with other roles.
+ * @param {string} role The role name to search for.
+ * @param {boolean | undefined} caseInsensitive Whether or not case matters in this serach.
+ */
+function doesOverlappingRoleExist(role, caseInsensitive) {
+  if (caseInsensitive) {
+    const allOverlappingRolesAsLowercase = equalRolesWithOverlapAllowed.map(role => role.toLowerCase());
+    return allOverlappingRolesAsLowercase.includes(role.toLowerCase);
+  }
+
+  return equalRolesWithOverlapAllowed.includes(role);
 }
 
 module.exports = roles;
