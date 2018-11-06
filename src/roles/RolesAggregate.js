@@ -68,7 +68,7 @@ function getNonOverlappingSetFromName(roleName, caseInsensitive) {
       const namesOfRolesInThisSetLowercase = roleSet.getRoles().map(roleName => roleName.toLowerCase());
       const doesRoleSetContainGivenName = namesOfRolesInThisSetLowercase.includes(roleName.toLowerCase());
 
-      return doesRoleSetContainGivenName;
+      if (doesRoleSetContainGivenName) return roleSet;
     }
 
     if (roleSet.contains(roleName)) {
