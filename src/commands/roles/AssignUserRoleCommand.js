@@ -163,7 +163,7 @@ class AssignUserRoleCommand extends Commando.Command { // TODO: Redo all of this
       if (setForThisRole) {
         const conflictingRoles = setForThisRole.findMatchingRoles(user);
         await user.removeRoles(conflictingRoles);
-        Logger.info(`${user} had roles ${conflictingRoles.map(role => role.name).join(', ')} removed.`);
+        Logger.info(`${user.user.tag} had roles ${conflictingRoles.map(role => role.name).join(', ')} removed.`);
       }
     }
 
