@@ -5,6 +5,7 @@ const Commando = require('discord.js-commando');
 
 const Logger = require('./logging/Logger'); // Import logger for tracking bot progress.
 const addDiscordChannelLogger = require('./logging/addDiscordChannelLogger');
+const prepareSettingsProvider = require('./settings/SettingsProvider');
 
 // Import methods responsible for creating roles and other commands.
 const createServerRoles = require('./commands/createServerRoles'); 
@@ -81,6 +82,15 @@ discordClient.on('guildCreate', function (serverJoined) {
   createServerRoles(discordClient);
 });
 
-discordClient.login(Settings.BOT_TOKEN); // Log into Discord.
+async function main() {
+  await prepareSettingsProvider(discordClient);
+  discordClient.login(Settings.BOT_TOKEN); // Log into Discord.
+}
+
+/**
+ * Wrap main actions into this main function so that we can run async commands and the like and make
+ * sure things run in the right order.
+ */
+main();
 
 module.exports = discordClient; // Export the client for use in other files.

@@ -1,0 +1,4 @@
+{
+  "description": "An example of the schema found in the the SettingsProvider to show what kind of data is available.",
+  "defaultCommandPrefix": "!!"
+}
