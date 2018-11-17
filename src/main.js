@@ -1,3 +1,4 @@
+//@ts-check
 const Discord = require('discord.js'); // Import Discord Library
 const Settings = require('./settings'); // Import settings from the settings.js file.
 const path = require('path'); // Module for locating paths and files.
@@ -5,7 +6,7 @@ const Commando = require('discord.js-commando');
 
 const Logger = require('./logging/Logger'); // Import logger for tracking bot progress.
 const addDiscordChannelLogger = require('./logging/addDiscordChannelLogger');
-const prepareSettingsProvider = require('./settings/SettingsProvider');
+const {setupSettingsProvider} = require('./settings/SettingsProvider');
 
 // Import methods responsible for creating roles and other commands.
 const createServerRoles = require('./commands/createServerRoles'); 
@@ -60,7 +61,8 @@ discordClient.on('ready', async function () {
 });
 
 discordClient.registry.registerGroups([
-  ['roles', 'Roles']
+  ['roles', 'Roles'],
+  ['admin', 'Administrator']
 ]);
 
 discordClient.registry.registerDefaultTypes(); // Boilerplate to prepare bot for commands.
@@ -83,7 +85,7 @@ discordClient.on('guildCreate', function (serverJoined) {
 });
 
 async function main() {
-  await prepareSettingsProvider(discordClient);
+  await setupSettingsProvider(discordClient);
   discordClient.login(Settings.BOT_TOKEN); // Log into Discord.
 }
 
