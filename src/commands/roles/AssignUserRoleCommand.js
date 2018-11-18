@@ -46,7 +46,10 @@ class AssignUserRoleCommand extends Commando.Command { // TODO: Redo all of this
 
     await message.member.addRoles(rolesTheUserRequestedAndDoesNotCurrentlyHave);
     const loggingMessage = `User ${message.author.tag} ${message.member.nickname || ''} was assigned ${namesOfServerRolesAssigned}`;
-    Logger.info(loggingMessage);
+    Logger.info({
+      server: message.guild,
+      message: loggingMessage
+    });
     return message.reply(`You were assigned: ${namesOfServerRolesAssigned}`);
 
   }
@@ -163,7 +166,10 @@ class AssignUserRoleCommand extends Commando.Command { // TODO: Redo all of this
       if (setForThisRole) {
         const conflictingRoles = setForThisRole.findMatchingRoles(user);
         await user.removeRoles(conflictingRoles);
-        Logger.info(`${user.user.tag} had roles ${conflictingRoles.map(role => role.name).join(', ')} removed.`);
+        Logger.info({
+          server: message.guild,
+          message: `${user.user.tag} had roles ${conflictingRoles.map(role => role.name).join(', ')} removed.`
+        });
       }
     }
 

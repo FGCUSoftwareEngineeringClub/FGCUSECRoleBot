@@ -47,7 +47,10 @@ class RemoveRoleCommand extends Commando.Command {
       });
       const rolesToRemoveNames = rolesToRemove.array().map(role => role.name).join(', ');
       await user.removeRoles(rolesToRemove);
-      Logger.info('Removed roles: ' + rolesToRemoveNames + ' from ' + user.user.tag);
+      Logger.info({
+        server: message.guild,
+        message: 'Removed roles: ' + rolesToRemoveNames + ' from ' + user.user.tag,
+      });
       return message.reply(rolesToRemoveNames + " removed.");
     } else {
       return message.reply('There were no roles to remove.');

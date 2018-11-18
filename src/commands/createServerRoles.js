@@ -28,7 +28,10 @@ function createServerRoles(discordClient) {
           permissions: Settings.equalRolePermissions,
         });
 
-        Logger.info('Created role ' + newRoleToCreate.name + ' in server ' + guild.name); 
+        Logger.info({
+          server: guild,
+          message: 'Created role ' + newRoleToCreate.name + ' in server ' + guild.name + '.'
+        }); 
       }
     });
   });

@@ -1,7 +1,9 @@
 //@ts-check
 const BaseTransport = require('winston-transport');
 const Discord = require('discord.js');
+const Commando = require('discord.js-commando');
 const Settings = require('../settings');
+const { settingsKeys } = require('../settings/SettingsProvider');
 const logger = require('./Logger');
 
 /**
@@ -12,40 +14,39 @@ const logger = require('./Logger');
 class DiscordChannelTransport extends BaseTransport {
   /**
    * 
-   * @param {{client: Discord.Client} & BaseTransport.TransportStreamOptions} options 
+   * @param {{client: Commando.CommandoClient} & BaseTransport.TransportStreamOptions} options 
    */
   constructor(options) {
     super(options);
     /**
-     * @type {Discord.Client}
+     * @type {Commando.CommandoClient}
      * @private
      */
     this.discordClient = options.client;
-
-    /** Sets a boolean for whether or not any logging text channel is set in settings. */
-    this.loggingChannelExists = Settings.LOGGING_TEXT_CHANNEL ? true : false;
-    if (this.loggingChannelExists) {
-      const primaryServer = this.discordClient.guilds.get(Settings.PRIMARY_SERVER_ID);
-
-      this.loggingChannel = primaryServer.channels.get(Settings.LOGGING_TEXT_CHANNEL);
-    }
-
     logger.info('Discord Channel Logger Active!');
   }
 
-  async log(message, onFinished) {
-    if (this.loggingChannelExists) {
-      /**
-       * If the message argument is an object with a message property, message will be set to that,
-       * otherwise it will be set to the message itself.
-       */
-      const messageText = message.message || message;
+  /**
+   * 
+   * @param {object} info 
+   * @param {Commando.GuildExtension} info.server
+   * @param {string} info.message
+   * @param {Function} onFinished 
+   */
+  async log(info, onFinished) {
+    if (!info.server) return; // Don't try to log to a server if a server isn't passed with this message.
 
+    const server = info.server;
+    const serverLoggingChannelId = server.settings.get(settingsKeys.DEFAULT_LOGGING_CHANNEL);
+
+    if (serverLoggingChannelId) {
+      const serverLoggingChannel = server.channels.get(serverLoggingChannelId);
+      
       // If this message spans multiple lines, place it in a codeblock to try preserving formatting.
       // await this.loggingChannel.send(messageText, {code: messageText.includes('\n')});
-      this.loggingChannel.send(messageText, {code: messageText.includes('\n')});
+      await serverLoggingChannel.send(info.message, {code: info.message.includes('\n')})
     }
-    
+
     /*
      If a callback was passed in, then call it. Useful if you want to do something after a message
      has finished logging.

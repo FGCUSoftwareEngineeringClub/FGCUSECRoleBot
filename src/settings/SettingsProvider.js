@@ -15,14 +15,16 @@ async function setupSettingsProvider(client) {
   client.setProvider(settingsProvider);
 }
 
-DEFAULT_LOGGING_CHANNEL = 'guild.loggingChannel'
+const settingKeys = {
+  DEFAULT_LOGGING_CHANNEL: 'guild.loggingChannel'
+}
 
 /** @type {string[]} */
-const keys = [
-  DEFAULT_LOGGING_CHANNEL
-]
+const settingNames = Object.getOwnPropertyNames(settingKeys).map(key => settingKeys[key]);
+
 
 module.exports = {
   setupSettingsProvider,
-  settingsKeys: keys
+  settingsKeys: settingKeys,
+  settingNames: settingNames
 };

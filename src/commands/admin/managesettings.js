@@ -1,8 +1,6 @@
 //@ts-check
 const Commando = require('discord.js-commando');
-const {
-  settingsKeys
-} = require('../../settings/SettingsProvider');
+const { settingsKeys, settingNames } = require('../../settings/SettingsProvider');
 const Discord = require('discord.js');
 
 class SettingsCommand extends Commando.Command {
@@ -32,7 +30,6 @@ class SettingsCommand extends Commando.Command {
    * @param {string} args 
    */
   async run(message, args) {
-    const client = message.client;
     const messageArguments = args.split(' ');
 
     if (args.length === 0 || messageArguments.length === 0) {
@@ -64,8 +61,8 @@ class SettingsCommand extends Commando.Command {
  */
 function listServerSettings(message, messageArguments) {
   const settingsAndValues = [];
-  for (const key of settingsKeys) {
-    const valueOfSetting = message.client.settings.get(key, null);
+  for (const key of settingNames) {
+    const valueOfSetting = message.guild.settings.get(settingNames, null);
     if (valueOfSetting) settingsAndValues.push(`${key}: ${valueOfSetting}`);
   }
 
@@ -78,11 +75,11 @@ function listServerSettings(message, messageArguments) {
 
 /**
  * Removes a setting from a server given the key.
- * @param {Commando.CommandMessage} message 
+ * @param {Commando.CommandMessage} message
  * @param {string[]} messageArguments 
  */
 function removeServerSetting(message, messageArguments) {
-  const result = message.client.settings.remove(messageArguments[1]);
+  const result = message.guild.settings.remove(messageArguments[1]);
   return message.reply(`Setting value ${messageArguments[1]} removed with result ${result}`);
 }
 
@@ -93,8 +90,8 @@ function removeServerSetting(message, messageArguments) {
  */
 function setSettingFromKey(message, messageArguments) {
   const [settingKey, newSetting] = messageArguments;
-  if (settingsKeys.includes(settingKey)) {
-    message.client.settings.set(settingKey, newSetting);
+  if (settingNames.includes(settingKey)) {
+    message.guild.settings.set(settingKey, newSetting);
     return message.reply(`${settingKey} was assigned '${newSetting}'`);
   } else {
     return message.reply(`Only preset settings can be set or modified. Use --listkeys to see a list of possible options.`);
@@ -107,7 +104,7 @@ function setSettingFromKey(message, messageArguments) {
  * @param {string[]} messageArguments 
  */
 function getValueOfSetting(message, messageArguments) {
-  const settingValue = message.client.settings.get(messageArguments[1], null);
+  const settingValue = message.guild.settings.get(messageArguments[1], null);
   if (settingValue) {
     return message.reply(`Value for ${messageArguments[0]} is ${settingValue}`);
   } else {
@@ -121,7 +118,9 @@ function getValueOfSetting(message, messageArguments) {
  * @param {string[]} messageArguments 
  */
 function listSettingKeys(message, messageArguments) {
-  return message.reply(settingsKeys.join('\n'), {code: true});
+  // Since settings are stored in an object, we need to get the keys inside the object then convert
+  // the key to the corresponding value.
+  return message.reply(settingNames.join('\n'), {code: true});
 }
 
 module.exports = SettingsCommand;

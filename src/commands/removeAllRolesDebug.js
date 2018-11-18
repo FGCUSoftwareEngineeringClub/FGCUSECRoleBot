@@ -9,7 +9,10 @@ const roles = require('../roles/RolesAggregate');
  * @param {Discord.Message} message 
  */
 function removeAllRoles(message) {
-  Logger.info('User ' + message.author.tag + ' requested all roles be removed.');
+  Logger.info({
+    server: message.guild,
+    message: 'User ' + message.author.tag + ' requested all roles be removed.'
+  });
   message.channel.send('Removing roles added.');
   let rolesRemoved = [];
 
@@ -19,7 +22,10 @@ function removeAllRoles(message) {
       try {
         await role.delete('Admin requested role be removed.');
       } catch (error) {
-        Logger.error(error);
+        Logger.error({
+          server: message.guild,
+          message: error,
+        });
       }
     }
   });
