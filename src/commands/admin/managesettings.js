@@ -2,6 +2,7 @@
 const Commando = require('discord.js-commando');
 const { settingsKeys, settingNames } = require('../../settings/SettingsProvider');
 const Discord = require('discord.js');
+const Logger = require('../../logging/Logger');
 
 class SettingsCommand extends Commando.Command {
 
@@ -79,6 +80,10 @@ function listServerSettings(message, messageArguments) {
  * @param {string[]} messageArguments 
  */
 function removeServerSetting(message, messageArguments) {
+  Logger.info({
+    server: message.guild,
+    message: `${message.author.tag} removed setting ${messageArguments[1]}`
+  });
   const result = message.guild.settings.remove(messageArguments[1]);
   return message.reply(`Setting value ${messageArguments[1]} removed with result ${result}`);
 }
@@ -91,6 +96,10 @@ function removeServerSetting(message, messageArguments) {
 function setSettingFromKey(message, messageArguments) {
   const [settingKey, newSetting] = messageArguments;
   if (settingNames.includes(settingKey)) {
+    Logger.info({
+      server: message.guild,
+      message: `${message.author.tag} updated ${settingKey} to ${newSetting}`
+    });
     message.guild.settings.set(settingKey, newSetting);
     return message.reply(`${settingKey} was assigned '${newSetting}'`);
   } else {
