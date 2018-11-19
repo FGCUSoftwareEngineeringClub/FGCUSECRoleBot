@@ -1,6 +1,6 @@
 {
   "name": "fgcusecroles",
-  "version": "2.5.8",
+  "version": "2.8.0",
   "description": "A bot for the FGCU Software Engineering Club to assign roles to new users in the Discord.",
   "main": "src/main.js",
   "private": true,
@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tgayle/FGCUSECRoleBot.git"
+    "url": "git+https://github.com/FGCUSoftwareEngineeringClub/FGCUSECRoleBot.git"
   },
   "author": "tgayle",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/tgayle/FGCUSECRoles/issues"
+    "url": "https://github.com/FGCUSoftwareEngineeringClub/FGCUSECRoleBot/issues"
   },
-  "homepage": "https://github.com/tgayle/FGCUSECRoles#readme",
+  "homepage": "https://github.com/FGCUSoftwareEngineeringClub/FGCUSECRoleBot#readme",
   "dependencies": {
     "discord.js": "^11.4.2",
     "discord.js-commando": "^0.10.0",
