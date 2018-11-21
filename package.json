@@ -30,6 +30,8 @@
   },
   "devDependencies": {
     "@types/dotenv": "^4.0.3",
-    "@types/nedb": "^1.8.6"
+    "@types/nedb": "^1.8.6",
+    "eslint": "^5.9.0",
+    "eslint-config-google": "^0.11.0"
   }
 }
