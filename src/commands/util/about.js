@@ -1,4 +1,4 @@
-//@ts-check
+// @ts-check
 const Discord = require('discord.js');
 const moment = require('moment'); // Time/Date management library
 const os = require('os'); // Get information about device running bot
@@ -10,41 +10,44 @@ const Commando = require('discord.js-commando');
  */
 class AboutCommand extends Commando.Command {
   /**
-   * 
-   * @param {Commando.CommandoClient} client 
+   *
+   * @param {Commando.CommandoClient} client
    */
   constructor(client) {
     super(client, {
       name: 'about',
       group: 'util',
       memberName: 'aboutbot',
-      guildOnly: false, // Set this to true if you only want this command to work in a server chatroom.
+
+      // Set this to true if you only want this command to work in a server chatroom.
+      guildOnly: false,
       description: 'Prints information about this bot.',
     });
   }
 
   /**
-   * @param {Commando.CommandMessage} message 
-   * @param {string[]} args 
+   * @param {Commando.CommandMessage} message
+   * @param {string[]} args
    */
   async run(message, args) {
-    const serverUptime = moment.duration(os.uptime(), 'seconds').humanize()
+    const serverUptime = moment.duration(os.uptime(), 'seconds').humanize();
     const clientUptime = moment.duration(message.client.uptime, 'milliseconds').humanize();
-  
+
     const richEmbed = new Discord.RichEmbed({
-        title: `**FSEC Role Bot**`,
-        timestamp: new Date(),
-        color: 0x20C20E
+      title: `**FSEC Role Bot**`,
+      timestamp: new Date(),
+      color: 0x20C20E,
     });
-  
-    richEmbed.setAuthor("FGCU Software Engineering Club", "https://i.imgur.com/OfRkVRS.jpg", "https://getinvolved.fgcu.edu/organization/seclub");
-    richEmbed.addField("Github", "[Click Here](https://github.com/tgayle/FGCUSECRoleBot)");
-    richEmbed.addField("Bot Uptime", clientUptime);
-    richEmbed.addField("Running On", `${os.type()} ${os.arch()}`);
-    richEmbed.addField("Server Uptime", serverUptime);
-  
-    richEmbed.setFooter("Made with ❤ | Version " + process.env.npm_package_version);
-  
+
+    richEmbed.setAuthor('FGCU Software Engineering Club', 'https://i.imgur.com/OfRkVRS.jpg',
+        'https://getinvolved.fgcu.edu/organization/seclub');
+    richEmbed.addField('Github', '[Click Here](https://github.com/tgayle/FGCUSECRoleBot)');
+    richEmbed.addField('Bot Uptime', clientUptime);
+    richEmbed.addField('Running On', `${os.type()} ${os.arch()}`);
+    richEmbed.addField('Server Uptime', serverUptime);
+
+    richEmbed.setFooter('Made with ❤ | Version ' + process.env.npm_package_version);
+
     return message.channel.send(richEmbed);
   }
 }

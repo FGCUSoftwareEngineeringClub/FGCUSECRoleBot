@@ -7,7 +7,9 @@ module.exports = {
         "linebreak-style": ["error", "windows"],
         "no-unused-vars": "warn",
         "max-len": [2, {
-            code: 100
+            code: 100,
+            ignoreUrls: true,
+            ignoreTemplateLiterals: true
         }]
     }
 };

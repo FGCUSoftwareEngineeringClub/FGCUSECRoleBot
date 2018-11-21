@@ -1,4 +1,4 @@
-//@ts-check
+// @ts-check
 const Discord = require('discord.js'); // Import Discord Library
 const Settings = require('./settings'); // Import settings from the settings.js file.
 const path = require('path'); // Module for locating paths and files.
@@ -9,7 +9,7 @@ const addDiscordChannelLogger = require('./logging/addDiscordChannelLogger');
 const {setupSettingsProvider} = require('./settings/SettingsProvider');
 
 // Import methods responsible for creating roles and other commands.
-const createServerRoles = require('./commands/createServerRoles'); 
+const createServerRoles = require('./commands/createServerRoles');
 
 const discordClient = new Commando.CommandoClient({
   owner: Settings.botOwners,
@@ -18,39 +18,39 @@ const discordClient = new Commando.CommandoClient({
 
 /**
  * Sets a listener to run when the client is ready, or when it's successfully logged in.
- * 
+ *
  * This is useful for doing things when the bot first starts running, such as setting a status or
  * printing a message.
- * 
+ *
  * This function is marked with the 'async' tag to say that it isn't sure exactly how long it will
  * take for this function to complete. Changing the bot's status, adding roles, etc, all take time.
- * 
- * When you want to wait for something that takes time to finish before moving on, you place the 
+ *
+ * When you want to wait for something that takes time to finish before moving on, you place the
  * 'await' keyword in front of it to have the function wait for that to finish before continuing.
  */
-discordClient.on('ready', async function () {
+discordClient.on('ready', async function() {
   addDiscordChannelLogger(discordClient);
-  Logger.debug('FSEC Role Bot logged in as ' + discordClient.user.tag + '!')
-  
+  Logger.debug('FSEC Role Bot logged in as ' + discordClient.user.tag + '!');
+
   // Generate invite link for bot with a list of permissions we want the bot to have.
   const inviteLink = await discordClient.generateInvite(['CONNECT',
     'MANAGE_ROLES',
     'KICK_MEMBERS',
-    'MANAGE_NICKNAMES', 
-    'SEND_MESSAGES',   
+    'MANAGE_NICKNAMES',
+    'SEND_MESSAGES',
     'VIEW_CHANNEL']);
-  
+
   Logger.debug('Invite me to your server with this link: ' + inviteLink);
-  
+
   /*
   Set the bot's status on Discord to show when the server was last started.
   Date is formatted as "MMMM Do YYYY, h:mm:ss a" -> "January 1st 2018, 12:01:00 am"
-  */ 
+  */
   discordClient.user.setPresence({
     game: {
-      type: "LISTENING",
-      name: Settings.COMMAND_PREFIX + "help for commands!",
-    }
+      type: 'LISTENING',
+      name: Settings.COMMAND_PREFIX + 'help for commands!',
+    },
   });
 
   /**
@@ -62,7 +62,7 @@ discordClient.on('ready', async function () {
 
 discordClient.registry.registerGroups([
   ['roles', 'Roles'],
-  ['admin', 'Administrator']
+  ['admin', 'Administrator'],
 ]);
 
 discordClient.registry.registerDefaultTypes(); // Boilerplate to prepare bot for commands.
@@ -80,19 +80,18 @@ discordClient.registry.registerCommandsIn(path.join(__dirname, 'commands'));
 /**
  * When the bot is invited to a server, try to create all equal roles listed in settings.
  */
-discordClient.on('guildCreate', function (serverJoined) {
+discordClient.on('guildCreate', function(serverJoined) {
   createServerRoles(discordClient);
 });
 
+/**
+ * Wrap main actions into this main function so that we can run commands async and keep it readable.
+ */
 async function main() {
   await setupSettingsProvider(discordClient);
   discordClient.login(Settings.BOT_TOKEN); // Log into Discord.
 }
 
-/**
- * Wrap main actions into this main function so that we can run async commands and the like and make
- * sure things run in the right order.
- */
 main();
 
 module.exports = discordClient; // Export the client for use in other files.

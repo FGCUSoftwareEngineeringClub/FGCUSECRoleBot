@@ -1,10 +1,15 @@
-//@ts-check
+// @ts-check
 const BaseTransport = require('winston-transport');
 const Discord = require('discord.js');
 const Commando = require('discord.js-commando');
 const Settings = require('../settings');
-const { settingsKeys } = require('../settings/SettingsProvider');
+const {settingsKeys} = require('../settings/SettingsProvider');
 const logger = require('./Logger');
+
+/**
+ * @typedef {{client: Commando.CommandoClient} & BaseTransport.TransportStreamOptions}
+ *  DiscordTransportConstructorOptions
+ */
 
 /**
  * This is a custom transporter from the winston library to allow logging messages to a discord
@@ -13,8 +18,8 @@ const logger = require('./Logger');
  */
 class DiscordChannelTransport extends BaseTransport {
   /**
-   * 
-   * @param {{client: Commando.CommandoClient} & BaseTransport.TransportStreamOptions} options 
+   *
+   * @param {DiscordTransportConstructorOptions} options
    */
   constructor(options) {
     super(options);
@@ -27,31 +32,32 @@ class DiscordChannelTransport extends BaseTransport {
   }
 
   /**
-   * 
-   * @param {object} info 
+   *
+   * @param {object} info
    * @param {Commando.GuildExtension} info.server
    * @param {string} info.message
-   * @param {Function} onFinished 
+   * @param {Function} onFinished
    */
   async log(info, onFinished) {
-    if (!info.server) return; // Don't try to log to a server if a server isn't passed with this message.
+    // Don't try to log to a server if a server isn't passed with this message.
+    if (!info.server) return;
 
     const server = info.server;
     const serverLoggingChannelId = server.settings.get(settingsKeys.DEFAULT_LOGGING_CHANNEL);
 
     if (serverLoggingChannelId) {
       const serverLoggingChannel = server.channels.get(serverLoggingChannelId);
-      
+
       // If this message spans multiple lines, place it in a codeblock to try preserving formatting.
       // await this.loggingChannel.send(messageText, {code: messageText.includes('\n')});
-      await serverLoggingChannel.send(info.message, {code: info.message.includes('\n')})
+      await serverLoggingChannel.send(info.message, {code: info.message.includes('\n')});
     }
 
     /*
      If a callback was passed in, then call it. Useful if you want to do something after a message
      has finished logging.
     */
-    if (onFinished) onFinished(); 
+    if (onFinished) onFinished();
   }
 }
 

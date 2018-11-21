@@ -3,11 +3,12 @@ const sqlite = require('sqlite');
 const path = require('path');
 
 /**
- * 
- * @param {Commando.CommandoClient} client 
+ * Prepare the database for storing settings and attach it to the Discord client so we can access
+ * it.
+ * @param {Commando.CommandoClient} client
  */
 async function setupSettingsProvider(client) {
-  const databasePath = path.join(__dirname, "serversettings.db");
+  const databasePath = path.join(__dirname, 'serversettings.db');
 
   /** @type {sqlite.Database} */
   const db = await sqlite.open(databasePath);
@@ -16,15 +17,15 @@ async function setupSettingsProvider(client) {
 }
 
 const settingKeys = {
-  DEFAULT_LOGGING_CHANNEL: 'guild.loggingChannel'
-}
+  DEFAULT_LOGGING_CHANNEL: 'guild.loggingChannel',
+};
 
 /** @type {string[]} */
-const settingNames = Object.getOwnPropertyNames(settingKeys).map(key => settingKeys[key]);
+const settingNames = Object.getOwnPropertyNames(settingKeys).map((key) => settingKeys[key]);
 
 
 module.exports = {
   setupSettingsProvider,
   settingsKeys: settingKeys,
-  settingNames: settingNames
+  settingNames: settingNames,
 };
