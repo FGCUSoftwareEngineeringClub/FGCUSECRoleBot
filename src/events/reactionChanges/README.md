@@ -1,0 +1,1 @@
+Files go in this directory if they should be triggered as a result of reacting or adding an emote to a message.

@@ -18,6 +18,8 @@ async function setupSettingsProvider(client) {
 
 const settingKeys = {
   DEFAULT_LOGGING_CHANNEL: 'guild.loggingChannel',
+  DEFAULT_ROLE_ASSIGNMENT_CHANNEL: 'guild.roles.roleAssignmentChannel',
+  ROLE_ASSIGNMENT_MESSAGES: 'guild.roles.roleAssignmentMessages',
 };
 
 /** @type {string[]} */
