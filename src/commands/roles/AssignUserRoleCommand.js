@@ -105,7 +105,7 @@ class AssignUserRoleCommand extends Commando.Command { // TODO: Redo all of this
 
         const indexOfThisSet = keysOfNonOverlappingRolesToAssign.indexOf(setForThisRole);
 
-        if (indexOfThisSet === -1) { 
+        if (indexOfThisSet === -1) {
           // No role from this set has been requested yet so add it to the end.
           allRolesToAssign.push(role);
         } else { // A role from this set has already been requested so we should overwrite it.
