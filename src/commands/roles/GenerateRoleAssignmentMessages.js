@@ -62,18 +62,21 @@ class GenerateRoleAssignmentMessagesCommand extends Commando.Command {
       roleAssignmentMessages.push(roleRequestMessageForDiscord);
     }
 
-    const overlappingRoleMessage = `Group: **Other Roles**\n` +
+    if (Roles.namesOfOverlappingRoles.length) {
+      const overlappingRoleMessage = `Group: **Other Roles**\n` +
       Roles.overlappingRolesWithEmojis
           .map(([roleName, emoji]) => `${emoji}: **${roleName}**`)
           .join('\n');
 
-    /** @type {Discord.Message} */
-    const overlappingRoleRequestMessage = await roleAssignmentChannel.send(overlappingRoleMessage);
-    for (const [roleName, emoji] of Roles.overlappingRolesWithEmojis) {
-      await overlappingRoleRequestMessage.react(emoji);
-    }
+      /** @type {Discord.Message} */
+      const overlappingRoleRequestMessage = 
+        await roleAssignmentChannel.send(overlappingRoleMessage);
+      for (const [roleName, emoji] of Roles.overlappingRolesWithEmojis) {
+        await overlappingRoleRequestMessage.react(emoji);
+      }
 
-    roleAssignmentMessages.push(overlappingRoleRequestMessage);
+      roleAssignmentMessages.push(overlappingRoleRequestMessage);
+    }
 
     const roleAssignmentDiscordMessageIds = roleAssignmentMessages.map((message) => message.id);
 
