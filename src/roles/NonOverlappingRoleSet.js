@@ -9,11 +9,18 @@ class NonOverlappingRoleSet {
    *
    * @param {string} nameOfSet
    * @param {string[]} roles
+   * @param {string[]} roleEmojis
    */
-  constructor(nameOfSet, roles) {
+  constructor(nameOfSet, roles, roleEmojis) {
     this.nameOfSet = nameOfSet;
-    /** @private */
-    this._roles = roles;
+    this.roles = roles;
+    this.roleEmojis = roleEmojis;
+
+    /**
+     * Create an array where each item is an array with the role name as the first item and the
+     * emoji for the role as the second item.
+     */
+    this.rolesAndEmotes = this.roles.map((roleName, index) => [roleName, this.roleEmojis[index]]);
   }
 
   /**
@@ -29,7 +36,7 @@ class NonOverlappingRoleSet {
    * @return {string[]}
    */
   getRoles() {
-    return this._roles;
+    return this.roles;
   }
 
   /**
@@ -38,7 +45,7 @@ class NonOverlappingRoleSet {
    * @return {boolean}
    */
   contains(nameOfRole) {
-    return this._roles.includes(nameOfRole);
+    return this.roles.includes(nameOfRole);
   }
 
   /**
@@ -49,7 +56,7 @@ class NonOverlappingRoleSet {
    */
   findMatchingRoles(user) {
     const userRoles = user.roles.array();
-    const rolesOfThisSet = this._roles;
+    const rolesOfThisSet = this.roles;
     const rolesInThisSetThatUserHas = userRoles.filter(function(role) {
       return rolesOfThisSet.includes(role.name);
     });

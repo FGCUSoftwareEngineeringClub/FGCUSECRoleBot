@@ -13,12 +13,19 @@ const NonOverlappingRoleSet = require('./NonOverlappingRoleSet');
  * @see {NonOverlappingRoleSet}
  */
 const STUDENT_YEARS = ['Freshman', 'Sophomore', 'Junior', 'Senior'];
+const STUDENT_YEARS_EMOJIS = ['🐣', '🐥', '🐤', '🐔'];
 const MAJORS = ['Soft. Eng. Major', 'STEM Major', 'Non-STEM Major', 'CIS Major'];
+const MAJORS_EMOJIS = ['💻', '🔬', '📚', '⌨'];
+
 /** @type {string[]} */
 const equalRolesWithOverlapAllowed = [];
+const overlappingRoleEmojis = [];
+const overlappingRolesWithEmojis = equalRolesWithOverlapAllowed
+    .map((roleName, index) => [roleName, overlappingRoleEmojis[index]]);
 
-const studentYearSet = new NonOverlappingRoleSet('Student Years', STUDENT_YEARS);
-const studentMajorSet = new NonOverlappingRoleSet('Majors', MAJORS);
+const studentYearSet =
+    new NonOverlappingRoleSet('Student Years', STUDENT_YEARS, STUDENT_YEARS_EMOJIS);
+const studentMajorSet = new NonOverlappingRoleSet('Majors', MAJORS, MAJORS_EMOJIS);
 const equalRolesWithOverlapNotAllowed = [
   studentYearSet,
   studentMajorSet,
@@ -54,6 +61,7 @@ const roles = {
   namesOfNonOverlappingRoles: namesOfAllNonOverlappingRoles,
   namesOfOverlappingRoles: equalRolesWithOverlapAllowed,
   nonOverlappingRoleSets: equalRolesWithOverlapNotAllowed,
+  overlappingRolesWithEmojis: overlappingRolesWithEmojis,
 
   getNonOverlappingSetFromName: getNonOverlappingSetFromName,
   doesRoleExist: doesRoleExist,

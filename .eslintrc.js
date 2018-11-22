@@ -9,7 +9,8 @@ module.exports = {
         "max-len": [2, {
             code: 100,
             ignoreUrls: true,
-            ignoreTemplateLiterals: true
+            ignoreTemplateLiterals: true,
+            ignorePattern: "= require\(.+\);"
         }]
     }
 };

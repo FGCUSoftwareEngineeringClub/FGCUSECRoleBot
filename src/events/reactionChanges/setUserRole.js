@@ -1,6 +1,7 @@
 // @ts-check
 const Commando = require('discord.js-commando');
 const Discord = require('discord.js');
+const {getServerRoleAssignmentChannelIdFromSettings, serverHasRoleAssignmentChannel} = require('../../roles/util');
 const {settingsKeys} = require('../../settings/SettingsProvider');
 
 /**
@@ -25,34 +26,12 @@ function assignUserRole(reaction, user) {
 }
 
 /**
- * Returns true if the given server has set a channel to be the primary place for assigning roles
- * in the server settings and that channel actually exists in the server.
- * @param {Discord.Guild} server
- * @return {boolean}
- */
-function serverHasRoleAssignmentChannel(server) {
-  const serverRoleAssignmentChannelId = getServerRoleAssignmentChannelFromSettings(server);
-
-  return !!server.channels.get(serverRoleAssignmentChannelId);
-}
-
-/**
- * Returns the id of the channel that is set as the server's role assignment channel from the
- * server's settings.
- * @param {Discord.Guild} server
- * @return {string | undefined}
- */
-function getServerRoleAssignmentChannelFromSettings(server) {
-  return server.settings.get(settingsKeys.DEFAULT_ROLE_ASSIGNMENT_CHANNEL);
-}
-
-/**
  * Returns true if the given channel is the server's role assignment channel.
  * @param {Discord.TextChannel} channel
  * @return {boolean}
  */
 function currentChannelIsRoleAssignmentChannel(channel) {
-  return channel.id === getServerRoleAssignmentChannelFromSettings(channel.guild).id;
+  return channel.id === getServerRoleAssignmentChannelIdFromSettings(channel.guild).id;
 }
 
 /**

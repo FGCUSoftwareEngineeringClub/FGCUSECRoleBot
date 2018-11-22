@@ -72,7 +72,7 @@ class SettingsCommand extends Commando.Command {
 function listServerSettings(message, messageArguments) {
   const settingsAndValues = [];
   for (const key of settingNames) {
-    const valueOfSetting = message.guild.settings.get(settingNames, null);
+    const valueOfSetting = message.guild.settings.get(key, null);
     if (valueOfSetting) settingsAndValues.push(`${key}: ${valueOfSetting}`);
   }
 
@@ -127,7 +127,7 @@ function setSettingFromKey(message, messageArguments) {
  * @return {Promise<Discord.Message | Discord.Message[]>}
  */
 function getValueOfSetting(message, messageArguments) {
-  const settingValue = message.guild.settings.get(messageArguments[1], null);
+  const settingValue = message.guild.settings.get(messageArguments[0], null);
   if (settingValue) {
     return message.reply(`Value for ${messageArguments[0]} is ${settingValue}`);
   } else {
