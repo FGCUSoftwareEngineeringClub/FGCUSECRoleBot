@@ -32,7 +32,7 @@ class GenerateRoleAssignmentMessagesCommand extends Commando.Command {
 
     if (args.includes('--force')) {
       await this.removePreexistingRoleAssignmentMessages(message);
-    } else if (util.serverHasExistingRoleAssignmentMessages(message.guild)) {
+    } else if (await util.serverHasExistingRoleAssignmentMessages(message.guild)) {
       return this.promptUserAboutPreexistingRoleMessages(message);
     }
 

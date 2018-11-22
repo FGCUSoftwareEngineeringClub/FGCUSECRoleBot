@@ -29,17 +29,21 @@ function getServerRoleAssignmentChannelIdFromSettings(server) {
  * @param {Discord.Guild} server
  * @return {boolean};
  */
-function serverHasExistingRoleAssignmentMessages(server) {
+async function serverHasExistingRoleAssignmentMessages(server) {
   /** @type {Discord.TextChannel} */
   const roleAssignmentChannel =
       server.channels.get(getServerRoleAssignmentChannelIdFromSettings(server));
 
   /** @type {string[]} */
   const roleAssignmentMessageIds = server.settings.get(settingsKeys.ROLE_ASSIGNMENT_MESSAGES);
+
   if (!roleAssignmentMessageIds || roleAssignmentMessageIds.length == 0) return false;
-  return roleAssignmentChannel
-      .messages
-      .some((message) => roleAssignmentMessageIds.includes(message.id));
+
+  const roleAssignmentMessages = await Promise.all(roleAssignmentMessageIds
+      .map((id) => roleAssignmentChannel.fetchMessage(id)));
+
+  // Returns true if at least one id in the channel is stored in the database.
+  return roleAssignmentMessages.some((message) => roleAssignmentMessageIds.includes(message.id));
 }
 
 module.exports = {
