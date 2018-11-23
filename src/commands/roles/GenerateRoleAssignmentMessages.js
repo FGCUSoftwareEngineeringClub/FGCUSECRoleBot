@@ -32,6 +32,9 @@ class GenerateRoleAssignmentMessagesCommand extends Commando.Command {
 
     if (args.includes('--force')) {
       await this.removePreexistingRoleAssignmentMessages(message);
+    } else if (args.includes('--clear')) {
+      await this.removePreexistingRoleAssignmentMessages(message);
+      return message.reply(`Role request messages removed.`);      
     } else if (await util.serverHasExistingRoleAssignmentMessages(message.guild)) {
       return this.promptUserAboutPreexistingRoleMessages(message);
     }
@@ -83,7 +86,7 @@ class GenerateRoleAssignmentMessagesCommand extends Commando.Command {
     message.guild.settings
         .set(settingsKeys.ROLE_ASSIGNMENT_MESSAGES, roleAssignmentDiscordMessageIds);
 
-    return message.reply(`Role assignment commands created in ${roleAssignmentChannel.name}`);
+    return message.reply(`Role assignment commands created in <#${roleAssignmentChannel.id}>`);
   }
 
   /**

@@ -6,7 +6,7 @@ const Commando = require('discord.js-commando');
 
 const Logger = require('./logging/Logger'); // Import logger for tracking bot progress.
 const addDiscordChannelLogger = require('./logging/addDiscordChannelLogger');
-const {setupSettingsProvider} = require('./settings/SettingsProvider')
+const {setupSettingsProvider} = require('./settings/SettingsProvider');
 const {listenForRoleAssignmentMessages, assignUserRole} = require('./events/reactionChanges/setUserRole');
 
 // Import methods responsible for creating roles and other commands.
