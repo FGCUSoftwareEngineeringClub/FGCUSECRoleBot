@@ -31,8 +31,6 @@ const botOwners = process.env.BOT_OWNERS.split(' ');
 const settings = {
   BOT_TOKEN: process.env.BOT_TOKEN,
   COMMAND_PREFIX: process.env.COMMAND_PREFIX,
-  LOGGING_TEXT_CHANNEL: process.env.LOGGING_TEXT_CHANNEL,
-  PRIMARY_SERVER_ID: process.env.PRIMARY_SERVER_ID,
 
   equalRolePermissions: equalRolePermissions,
   roles: roles,
