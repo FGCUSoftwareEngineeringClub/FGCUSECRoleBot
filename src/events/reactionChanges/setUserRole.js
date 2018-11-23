@@ -36,6 +36,7 @@ async function assignUserRole(reaction, user) {
   const requestedRoleInfo = findRoleFromEmoji(emojiAdded);
   const userAsGuildMember = await message.guild.fetchMember(user);
 
+  if (!requestedRoleInfo) return; // Ignore emotes that don't have a role associated.
   const userRole = userHasRole(userAsGuildMember, requestedRoleInfo.role);
   if (userRole) {
     /**

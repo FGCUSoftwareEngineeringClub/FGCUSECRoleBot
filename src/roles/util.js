@@ -30,7 +30,7 @@ function getServerRoleAssignmentChannelIdFromSettings(server) {
  * Returns true if the given server has role-assignment messages set in settings and at least one
  * of those channels still exist.
  * @param {Discord.Guild} server
- * @return {boolean};
+ * @return {Promise<boolean>};
  */
 async function serverHasExistingRoleAssignmentMessages(server) {
   /** @type {Discord.TextChannel} */
