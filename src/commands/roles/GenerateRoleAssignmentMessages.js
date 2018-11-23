@@ -117,6 +117,8 @@ class GenerateRoleAssignmentMessagesCommand extends Commando.Command {
         .settings
         .get(settingsKeys.ROLE_ASSIGNMENT_MESSAGES);
 
+    if (!roleAssignmentMessageIds) return;
+
     const roleAssignmentChannelId =util.getServerRoleAssignmentChannelIdFromSettings(message.guild);
 
     /** @type {Discord.TextChannel} */

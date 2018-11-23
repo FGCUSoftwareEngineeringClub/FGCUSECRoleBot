@@ -6,7 +6,8 @@ const Commando = require('discord.js-commando');
 
 const Logger = require('./logging/Logger'); // Import logger for tracking bot progress.
 const addDiscordChannelLogger = require('./logging/addDiscordChannelLogger');
-const {setupSettingsProvider} = require('./settings/SettingsProvider');
+const {setupSettingsProvider} = require('./settings/SettingsProvider')
+const checkSetUserRole = require('./events/reactionChanges/setUserRole');
 
 // Import methods responsible for creating roles and other commands.
 const createServerRoles = require('./commands/createServerRoles');
@@ -82,6 +83,10 @@ discordClient.registry.registerCommandsIn(path.join(__dirname, 'commands'));
  */
 discordClient.on('guildCreate', function(serverJoined) {
   createServerRoles(discordClient);
+});
+
+discordClient.on('messageReactionAdd', (reaction, user) => {
+  checkSetUserRole(reaction, user); // TODO: Replace this.
 });
 
 /**

@@ -40,6 +40,15 @@ class NonOverlappingRoleSet {
   }
 
   /**
+   * Returns the role that was related to the given emoji.
+   * @param {string} emoji The emoji used to find the matching role.
+   * @return {string}
+   */
+  getRoleFromEmoji(emoji) {
+    return this.roles[this.roleEmojis.indexOf(emoji)];
+  }
+
+  /**
    * Returns true if this set contains the given role.
    * @param {string} nameOfRole The name of the role to check against the set.
    * @return {boolean}

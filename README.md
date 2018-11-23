@@ -16,7 +16,8 @@ This bot runs using Node.js, a way of running Javascript on the server, and the 
 ## Todo:
 
 * [x] Assigning user roles
-  * [ ] Case insensitivity when requesting a role.
+  * [x] Case insensitivity when requesting a role.
+  * [ ] New role request system with emotes
 * [x] Printing a list of all available roles.
 * [x] Help Command
 * [x] More modular command system.
