@@ -110,6 +110,16 @@ function findServerRoleFromName(server, roleName) {
   return server.roles.find((role) => role.name === roleName);
 }
 
+/**
+ * Returns the Discord Channel that was set as the role assignment channel in settings.
+ * @param {Discord.Guild} guild
+ * @return {Discord.GuildChannel}
+ */
+function getServerRoleAssignmentChannelFromSettings(guild) {
+  const id = getServerRoleAssignmentChannelIdFromSettings(guild);
+  return guild.channels.get(id);
+}
+
 module.exports = {
   serverHasRoleAssignmentChannel,
   getServerRoleAssignmentChannelIdFromSettings,
@@ -118,4 +128,5 @@ module.exports = {
   userHasRole,
   removeUserConflictingRoles,
   findServerRoleFromName,
+  getServerRoleAssignmentChannelFromSettings,
 };

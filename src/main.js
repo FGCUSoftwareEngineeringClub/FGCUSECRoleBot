@@ -7,7 +7,7 @@ const Commando = require('discord.js-commando');
 const Logger = require('./logging/Logger'); // Import logger for tracking bot progress.
 const addDiscordChannelLogger = require('./logging/addDiscordChannelLogger');
 const {setupSettingsProvider} = require('./settings/SettingsProvider')
-const checkSetUserRole = require('./events/reactionChanges/setUserRole');
+const {listenForRoleAssignmentMessages, assignUserRole} = require('./events/reactionChanges/setUserRole');
 
 // Import methods responsible for creating roles and other commands.
 const createServerRoles = require('./commands/createServerRoles');
@@ -42,6 +42,9 @@ discordClient.on('ready', async function() {
     'VIEW_CHANNEL']);
 
   Logger.debug('Invite me to your server with this link: ' + inviteLink);
+
+  // Preload/cache role-request messages to make sure the bot can respond to them.
+  await listenForRoleAssignmentMessages(discordClient);
 
   /*
   Set the bot's status on Discord to show when the server was last started.
@@ -86,7 +89,7 @@ discordClient.on('guildCreate', function(serverJoined) {
 });
 
 discordClient.on('messageReactionAdd', (reaction, user) => {
-  checkSetUserRole(reaction, user); // TODO: Replace this.
+  assignUserRole(reaction, user); // TODO: Replace this.
 });
 
 /**

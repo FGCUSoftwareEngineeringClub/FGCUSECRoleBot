@@ -2,6 +2,7 @@
 const Commando = require('discord.js-commando');
 const Discord = require('discord.js');
 const {getServerRoleAssignmentChannelIdFromSettings,
+  getServerRoleAssignmentChannelFromSettings,
   serverHasRoleAssignmentChannel,
   findRoleFromEmoji,
   userHasRole,
@@ -35,26 +36,29 @@ async function assignUserRole(reaction, user) {
   const requestedRoleInfo = findRoleFromEmoji(emojiAdded);
   const userAsGuildMember = await message.guild.fetchMember(user);
 
+  const userRole = userHasRole(userAsGuildMember, requestedRoleInfo.role);
+  if (userRole) {
+    /**
+       * If we get to this point, then the user is requesting a role they already have, so if the 
+       * user already has it, just remove it.
+       */
+    await userAsGuildMember.removeRole(userRole);
+    await reaction.remove(userAsGuildMember);
+    return;
+  }
+
   if (requestedRoleInfo.roleSet) {
     // Remove conflicting roles in the set and assign new role.
     await removeUserConflictingRoles(userAsGuildMember, requestedRoleInfo.roleSet);
-  } else {
-    const userRole = userHasRole(userAsGuildMember, requestedRoleInfo.role);
-    if (userRole) {
-      /**
-       * If we get to this point, the userRole here must be an overlapping role, so if the user
-       * already has it, just remove it.
-       */
-      await userAsGuildMember.removeRole(userRole);
-      await reaction.remove(userAsGuildMember);
-
-      return;
-    }
   }
 
   const serverRoleRequested = findServerRoleFromName(message.guild, requestedRoleInfo.role);
   await userAsGuildMember.addRole(serverRoleRequested);
-  await reaction.remove(userAsGuildMember);
+  for (const [id, reaction] of message.reactions) {
+    if (reaction.users.has(user.id)) {
+      await reaction.remove(userAsGuildMember);
+    }
+  }
 }
 
 /**
@@ -89,4 +93,26 @@ function userReactedToRoleAssigningMessage(reaction, user) {
           messageAuthorWasBot;
 }
 
-module.exports = assignUserRole;
+/**
+ *
+ * @param {Discord.Client} client
+ */
+async function listenForRoleAssignmentMessages(client) {
+  for (const [guildId, guild] of client.guilds) {
+    /** @type {Discord.TextChannel} */
+    const roleAssignmentChannel = getServerRoleAssignmentChannelFromSettings(guild);
+    if (!roleAssignmentChannel) return;
+
+    const roleAssignmentMessageIds = guild.settings.get(settingsKeys.ROLE_ASSIGNMENT_MESSAGES);
+
+    if (!roleAssignmentMessageIds) return;
+    for (const roleAssignmentMessageId of roleAssignmentMessageIds) {
+      await roleAssignmentChannel.fetchMessage(roleAssignmentMessageId);
+    }
+  }
+}
+
+module.exports = {
+  assignUserRole,
+  listenForRoleAssignmentMessages,
+};

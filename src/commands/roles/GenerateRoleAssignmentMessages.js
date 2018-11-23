@@ -36,9 +36,8 @@ class GenerateRoleAssignmentMessagesCommand extends Commando.Command {
       return this.promptUserAboutPreexistingRoleMessages(message);
     }
 
-    const roleAssignmentChannelId =util.getServerRoleAssignmentChannelIdFromSettings(message.guild);
     /** @type {Discord.TextChannel} */
-    const roleAssignmentChannel = message.guild.channels.get(roleAssignmentChannelId);
+    const roleAssignmentChannel = util.getServerRoleAssignmentChannelFromSettings(message.guild);
 
     /** @type {Discord.Message[]} */
     const roleAssignmentMessages = [];
@@ -69,7 +68,7 @@ class GenerateRoleAssignmentMessagesCommand extends Commando.Command {
           .join('\n');
 
       /** @type {Discord.Message} */
-      const overlappingRoleRequestMessage = 
+      const overlappingRoleRequestMessage =
         await roleAssignmentChannel.send(overlappingRoleMessage);
       for (const [roleName, emoji] of Roles.overlappingRolesWithEmojis) {
         await overlappingRoleRequestMessage.react(emoji);
@@ -119,10 +118,8 @@ class GenerateRoleAssignmentMessagesCommand extends Commando.Command {
 
     if (!roleAssignmentMessageIds) return;
 
-    const roleAssignmentChannelId =util.getServerRoleAssignmentChannelIdFromSettings(message.guild);
-
     /** @type {Discord.TextChannel} */
-    const roleAssignmentChannel = message.guild.channels.get(roleAssignmentChannelId);
+    const roleAssignmentChannel = util.getServerRoleAssignmentChannelFromSettings(message.guild);
     const currentRoleAssignmentMessages = roleAssignmentMessageIds.map((id) =>
       roleAssignmentChannel.messages.get(id));
 
