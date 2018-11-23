@@ -12,7 +12,8 @@ const {getServerRoleAssignmentChannelIdFromSettings,
 const {settingsKeys} = require('../../settings/SettingsProvider');
 
 /**
- *
+ * Triggered when a message reaction is added and checks if the reaction should be used to assign
+ * a user a role.
  * @param {Discord.MessageReaction} reaction
  * @param {Discord.User} user
  */
@@ -40,7 +41,7 @@ async function assignUserRole(reaction, user) {
   const userRole = userHasRole(userAsGuildMember, requestedRoleInfo.role);
   if (userRole) {
     /**
-       * If we get to this point, then the user is requesting a role they already have, so if the 
+       * If we get to this point, then the user is requesting a role they already have, so if the
        * user already has it, just remove it.
        */
     await userAsGuildMember.removeRole(userRole);
@@ -95,7 +96,8 @@ function userReactedToRoleAssigningMessage(reaction, user) {
 }
 
 /**
- *
+ * Finds role-assignment messages from settings and pre-fetches them to make sure we can respond to
+ * new role requests.
  * @param {Discord.Client} client
  */
 async function listenForRoleAssignmentMessages(client) {

@@ -34,7 +34,7 @@ class GenerateRoleAssignmentMessagesCommand extends Commando.Command {
       await this.removePreexistingRoleAssignmentMessages(message);
     } else if (args.includes('--clear')) {
       await this.removePreexistingRoleAssignmentMessages(message);
-      return message.reply(`Role request messages removed.`);      
+      return message.reply(`Role request messages removed.`);
     } else if (await util.serverHasExistingRoleAssignmentMessages(message.guild)) {
       return this.promptUserAboutPreexistingRoleMessages(message);
     }
