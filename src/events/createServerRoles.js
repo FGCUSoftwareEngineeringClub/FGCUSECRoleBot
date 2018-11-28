@@ -6,6 +6,8 @@ const roles = require('../roles/RolesAggregate');
 /**
  * For each server this bot is connected to, we check if the roles in settings exist for this
  * server. If the role doesn't exist, create it.
+ *
+ * This may also run when the bot is invited to a server.
  * @param {Discord.Client} discordClient
  */
 function createServerRoles(discordClient) {
@@ -37,4 +39,7 @@ function createServerRoles(discordClient) {
   });
 }
 
-module.exports = createServerRoles;
+module.exports = {
+  event: 'guildCreate',
+  run: createServerRoles,
+};

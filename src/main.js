@@ -10,8 +10,8 @@ const {setupSettingsProvider} = require('./settings/SettingsProvider');
 const {listenForRoleAssignmentMessages} = require('./events/setUserRoleOnReaction');
 const loadEvents = require('./util/eventLoader');
 
-// Import methods responsible for creating roles and other commands.
-const createServerRoles = require('./commands/createServerRoles');
+// Import methods responsible for creating roles in servers as necessary.
+const createServerRoles = require('./events/createServerRoles').run;
 
 const discordClient = new Commando.CommandoClient({
   owner: Settings.botOwners,
@@ -83,18 +83,11 @@ discordClient.registry.registerDefaultCommands({
 discordClient.registry.registerCommandsIn(path.join(__dirname, 'commands'));
 
 /**
- * When the bot is invited to a server, try to create all equal roles listed in settings.
- */
-discordClient.on('guildCreate', function(serverJoined) {
-  createServerRoles(discordClient);
-});
-
-/**
  * Wrap main actions into this main function so that we can run commands async and keep it readable.
  */
 async function main() {
-  await setupSettingsProvider(discordClient);
-  await loadEvents(discordClient);
+  await setupSettingsProvider(discordClient); // Set up settings database.
+  await loadEvents(discordClient); // Load any events from the events directory.
   discordClient.login(Settings.BOT_TOKEN); // Log into Discord.
 }
 
