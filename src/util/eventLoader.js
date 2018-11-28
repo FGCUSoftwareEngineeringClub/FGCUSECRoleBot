@@ -18,7 +18,7 @@ async function loadEvents(discordClient) {
      * Load all files in the given directory then add the command to the client for it to listen to.
      */
     const files = await fs.readdir(eventsDirectory);
-    files.forEach((file) => {
+    for (const file of files) {
       if (!file.endsWith('.js')) return; // Skip the file if it isn't a javascript file.
 
       /** @type {{event: string, run: Function}} */
@@ -30,7 +30,7 @@ async function loadEvents(discordClient) {
 
       // Remove any cached copies of the file.
       delete require.cache[require.resolve(`../events/${file}`)];
-    });
+    }
   } catch (error) {
     Logger.error({
       server: null,
