@@ -7,7 +7,8 @@ const Commando = require('discord.js-commando');
 const Logger = require('./logging/Logger'); // Import logger for tracking bot progress.
 const addDiscordChannelLogger = require('./logging/addDiscordChannelLogger');
 const {setupSettingsProvider} = require('./settings/SettingsProvider');
-const {listenForRoleAssignmentMessages, assignUserRole} = require('./events/reactionChanges/setUserRole');
+const {listenForRoleAssignmentMessages} = require('./events/setUserRoleOnReaction');
+const loadEvents = require('./util/eventLoader');
 
 // Import methods responsible for creating roles and other commands.
 const createServerRoles = require('./commands/createServerRoles');
@@ -88,15 +89,12 @@ discordClient.on('guildCreate', function(serverJoined) {
   createServerRoles(discordClient);
 });
 
-discordClient.on('messageReactionAdd', (reaction, user) => {
-  assignUserRole(reaction, user); // TODO: Replace this.
-});
-
 /**
  * Wrap main actions into this main function so that we can run commands async and keep it readable.
  */
 async function main() {
   await setupSettingsProvider(discordClient);
+  await loadEvents(discordClient);
   discordClient.login(Settings.BOT_TOKEN); // Log into Discord.
 }
 

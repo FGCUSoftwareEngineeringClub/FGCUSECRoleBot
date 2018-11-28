@@ -35,6 +35,7 @@ const settings = {
   equalRolePermissions: equalRolePermissions,
   roles: roles,
   botOwners: botOwners,
+  ROOT_DIRECTORY: __dirname,
 };
 
 // Export these settings for use in other files.

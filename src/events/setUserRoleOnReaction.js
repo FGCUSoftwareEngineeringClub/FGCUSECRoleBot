@@ -7,9 +7,9 @@ const {getServerRoleAssignmentChannelIdFromSettings,
   findRoleFromEmoji,
   userHasRole,
   removeUserConflictingRoles,
-  findServerRoleFromName} = require('../../roles/util');
+  findServerRoleFromName} = require('../roles/util');
 
-const {settingsKeys} = require('../../settings/SettingsProvider');
+const {settingsKeys} = require('../settings/SettingsProvider');
 
 /**
  * Triggered when a message reaction is added and checks if the reaction should be used to assign
@@ -116,6 +116,8 @@ async function listenForRoleAssignmentMessages(client) {
 }
 
 module.exports = {
-  assignUserRole,
   listenForRoleAssignmentMessages,
+
+  event: 'messageReactionAdd',
+  run: assignUserRole,
 };
