@@ -1,4 +1,10 @@
 /**
+ * This file holes access to settings that are considered "global," including bot tokens, roles for
+ * the bot to manage, bot owners, and other things that aren't necessarily specific to a certain
+ * Discord server.
+ */
+
+/**
  * Import environment variables. Instead of having strings, especially hardcoded ones in our files,
  *  we put them in our .env file for privacy and so they can be easily changed.
  *
