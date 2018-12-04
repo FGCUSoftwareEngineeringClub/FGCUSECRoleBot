@@ -37,6 +37,7 @@ const botOwners = process.env.BOT_OWNERS.split(' ');
 const settings = {
   BOT_TOKEN: process.env.BOT_TOKEN,
   COMMAND_PREFIX: process.env.COMMAND_PREFIX,
+  DATABASE_NAME: process.env.DATABASE_NAME,
 
   equalRolePermissions: equalRolePermissions,
   roles: roles,

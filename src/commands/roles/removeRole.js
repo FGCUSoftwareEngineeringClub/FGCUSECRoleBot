@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const Commando = require('discord.js-commando');
 const Logger = require('../../logging/Logger');
-const Settings = require('../../settings');
+const Settings = require('../../GlobalSettings');
 
 /**
  * Allows removing a requested role given that the user already has the role.

@@ -1,6 +1,6 @@
 // @ts-check
 const Commando = require('discord.js-commando');
-const Settings = require('../settings');
+const Settings = require('../GlobalSettings');
 const Logger = require('../logging/Logger');
 const path = require('path');
 const fs = require('fs').promises;

@@ -1,6 +1,6 @@
 // @ts-check
 const Discord = require('discord.js'); // Import Discord Library
-const Settings = require('./settings'); // Import settings from the settings.js file.
+const Settings = require('./GlobalSettings'); // Import settings from the settings.js file.
 const path = require('path'); // Module for locating paths and files.
 const Commando = require('discord.js-commando');
 

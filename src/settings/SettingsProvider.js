@@ -1,4 +1,5 @@
 const Commando = require('discord.js-commando');
+const Settings = require('../GlobalSettings');
 const sqlite = require('sqlite');
 const path = require('path');
 
@@ -13,7 +14,7 @@ const path = require('path');
  * @param {Commando.CommandoClient} client
  */
 async function setupSettingsProvider(client) {
-  const databasePath = path.join(__dirname, 'serversettings.db');
+  const databasePath = path.join(__dirname, Settings.DATABASE_NAME);
 
   /** @type {sqlite.Database} */
   const db = await sqlite.open(databasePath);

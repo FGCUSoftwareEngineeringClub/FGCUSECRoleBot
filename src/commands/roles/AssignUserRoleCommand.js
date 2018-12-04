@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 const Commando = require('discord.js-commando');
 const Logger = require('../../logging/Logger');
 const RolesAggregate = require('../../roles/RolesAggregate');
-const Settings = require('../../settings');
+const Settings = require('../../GlobalSettings');
 const NonOverlappingRoleSet = require('../../roles/NonOverlappingRoleSet');
 
 /**

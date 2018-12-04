@@ -2,7 +2,7 @@
 const BaseTransport = require('winston-transport');
 const Discord = require('discord.js');
 const Commando = require('discord.js-commando');
-const Settings = require('../settings');
+const Settings = require('../GlobalSettings');
 const {settingsKeys} = require('../settings/SettingsProvider');
 const logger = require('./Logger');
 

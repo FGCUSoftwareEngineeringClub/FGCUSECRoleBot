@@ -1,4 +1,4 @@
-const Settings = require('../settings');
+const Settings = require('../GlobalSettings');
 const Discord = require('discord.js');
 const Logger = require('../logging/Logger');
 const roles = require('../roles/RolesAggregate');
