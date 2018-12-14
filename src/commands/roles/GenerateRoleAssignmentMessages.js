@@ -93,17 +93,19 @@ class GenerateRoleAssignmentMessagesCommand extends Commando.Command {
    * Alerts the user that role selection messages already exist and that they should use the --force
    * argument to recreate them.
    * @param {Commando.CommandMessage} message The message that prompted this command.
-   * @return {Discord.Message}
+   * @return {Promise<Discord.Message>}
    */
   promptUserAboutPreexistingRoleMessages(message) {
-    return message.reply(`Role-request messages already exist for this server. Use this command with --force to recreate role-request messages.`);
+    return message
+        .reply('Role-request messages already exist for this server. ' +
+      'Use this command with --force to recreate role-request messages.');
   }
 
   /**
    * Lets the user know that creating role assignment messages failed since the server doesn't have
    * a role-assigning channel set.
    * @param {Commando.CommandMessage} message
-   * @return {Discord.Message}
+   * @return {Promise<Discord.Message>}
    */
   alertRoleAssignmentChannelDoesNotExist(message) {
     return message.reply(`This server does not have a role-assignment channel set. Use the settings command to set a role-assignment channel.`);
