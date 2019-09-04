@@ -12,7 +12,7 @@ const NonOverlappingRoleSet = require('./NonOverlappingRoleSet');
  * For more on how roles that aren't allowed to overlap are handled, see:
  * @see {NonOverlappingRoleSet}
  */
-const STUDENT_YEARS = ['Freshman', 'Sophomore', 'Junior', 'Senior', 'Graduated'];
+const STUDENT_YEARS = ['Freshman', 'Sophomore', 'Junior', 'Senior', 'Graduate'];
 const STUDENT_YEARS_EMOJIS = ['🐣', '🐥', '🐤', '🐔', '🍗'];
 const MAJORS = ['Soft. Eng. Major', 'STEM Major', 'Non-STEM Major', 'CIS Major'];
 const MAJORS_EMOJIS = ['💻', '🔬', '📚', '⌨'];
