@@ -12,8 +12,8 @@ const NonOverlappingRoleSet = require('./NonOverlappingRoleSet');
  * For more on how roles that aren't allowed to overlap are handled, see:
  * @see {NonOverlappingRoleSet}
  */
-const STUDENT_YEARS = ['Freshman', 'Sophomore', 'Junior', 'Senior'];
-const STUDENT_YEARS_EMOJIS = ['🐣', '🐥', '🐤', '🐔'];
+const STUDENT_YEARS = ['Freshman', 'Sophomore', 'Junior', 'Senior', 'Graduated'];
+const STUDENT_YEARS_EMOJIS = ['🐣', '🐥', '🐤', '🐔', '🍗'];
 const MAJORS = ['Soft. Eng. Major', 'STEM Major', 'Non-STEM Major', 'CIS Major'];
 const MAJORS_EMOJIS = ['💻', '🔬', '📚', '⌨'];
 
@@ -21,10 +21,10 @@ const MAJORS_EMOJIS = ['💻', '🔬', '📚', '⌨'];
 const equalRolesWithOverlapAllowed = [];
 const overlappingRoleEmojis = [];
 const overlappingRolesWithEmojis = equalRolesWithOverlapAllowed
-    .map((roleName, index) => [roleName, overlappingRoleEmojis[index]]);
+  .map((roleName, index) => [roleName, overlappingRoleEmojis[index]]);
 
 const studentYearSet =
-    new NonOverlappingRoleSet('Student Years', STUDENT_YEARS, STUDENT_YEARS_EMOJIS);
+  new NonOverlappingRoleSet('Student Years', STUDENT_YEARS, STUDENT_YEARS_EMOJIS);
 const studentMajorSet = new NonOverlappingRoleSet('Majors', MAJORS, MAJORS_EMOJIS);
 const equalRolesWithOverlapNotAllowed = [
   studentYearSet,
@@ -39,7 +39,7 @@ const rolesOfEachSet = equalRolesWithOverlapNotAllowed.map((roleSet) => roleSet.
 /**
  * The names of all roles that shouldn't be allowed to overlap by adding all the roles
  */
-const namesOfAllNonOverlappingRoles = rolesOfEachSet.reduce(function(firstSet, secondSet) {
+const namesOfAllNonOverlappingRoles = rolesOfEachSet.reduce(function (firstSet, secondSet) {
   return firstSet.concat(secondSet);
 });
 
@@ -52,7 +52,7 @@ let allEqualRoles = namesOfAllNonOverlappingRoles.concat(equalRolesWithOverlapAl
  * Remove duplicate names from the list in case there are any by filtering out names that have
  * already occurred.
  */
-allEqualRoles = allEqualRoles.filter(function(role, index, allRolesArray) {
+allEqualRoles = allEqualRoles.filter(function (role, index, allRolesArray) {
   return allRolesArray.indexOf(role) == index;
 });
 
