@@ -1,28 +1,39 @@
 {
   "name": "fgcusecroles",
-  "version": "1.2.8",
+  "version": "2.9.0",
   "description": "A bot for the FGCU Software Engineering Club to assign roles to new users in the Discord.",
   "main": "src/main.js",
   "private": true,
   "scripts": {
     "start": "node src/main.js",
+    "lint": "eslint src/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tgayle/FGCUSECRoleBot.git"
+    "url": "git+https://github.com/FGCUSoftwareEngineeringClub/FGCUSECRoleBot.git"
   },
   "author": "tgayle",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/tgayle/FGCUSECRoles/issues"
+    "url": "https://github.com/FGCUSoftwareEngineeringClub/FGCUSECRoleBot/issues"
   },
-  "homepage": "https://github.com/tgayle/FGCUSECRoles#readme",
+  "homepage": "https://github.com/FGCUSoftwareEngineeringClub/FGCUSECRoleBot#readme",
   "dependencies": {
     "discord.js": "^11.4.2",
+    "discord.js-commando": "^0.10.0",
     "dotenv": "^6.1.0",
     "moment": "^2.22.2",
+    "nedb": "^1.8.0",
+    "sqlite": "^3.0.0",
+    "sqlite3": "^4.0.4",
     "winston": "^3.1.0",
     "winston-transport": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/dotenv": "^4.0.3",
+    "@types/nedb": "^1.8.6",
+    "eslint": "^5.9.0",
+    "eslint-config-google": "^0.11.0"
   }
 }

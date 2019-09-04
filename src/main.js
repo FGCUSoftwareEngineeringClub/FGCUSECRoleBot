@@ -1,56 +1,61 @@
+// @ts-check
 const Discord = require('discord.js'); // Import Discord Library
-const Settings = require('./settings'); // Import settings from the settings.js file.
+const Settings = require('./GlobalSettings'); // Import settings from the settings.js file.
+const path = require('path'); // Module for locating paths and files.
+const Commando = require('discord.js-commando');
 
 const Logger = require('./logging/Logger'); // Import logger for tracking bot progress.
 const addDiscordChannelLogger = require('./logging/addDiscordChannelLogger');
+const {setupSettingsProvider} = require('./settings/SettingsProvider');
+const {listenForRoleAssignmentMessages} = require('./events/setUserRoleOnReaction');
+const loadEvents = require('./util/eventLoader');
 
-// Import methods responsible for creating roles and other commands.
-const createServerRoles = require('./commands/createServerRoles'); 
-const removeAllRolesDebug = require('./commands/removeAllRolesDebug');
-const assignUserRoles = require('./commands/AssignUserRole');
-const printAboutCommand = require('./commands/about');
-const helpCommand = require('./commands/help');
-const removeRoleCommand = require('./commands/removeRole');
+// Import methods responsible for creating roles in servers as necessary.
+const createServerRoles = require('./events/createServerRoles').run;
 
-const allAvailableRolesMessage = require('./roles/AllAvailableRolesMessage');
-
-const discordClient = new Discord.Client();
+const discordClient = new Commando.CommandoClient({
+  owner: Settings.botOwners,
+  commandPrefix: Settings.COMMAND_PREFIX,
+});
 
 /**
  * Sets a listener to run when the client is ready, or when it's successfully logged in.
- * 
+ *
  * This is useful for doing things when the bot first starts running, such as setting a status or
  * printing a message.
- * 
+ *
  * This function is marked with the 'async' tag to say that it isn't sure exactly how long it will
  * take for this function to complete. Changing the bot's status, adding roles, etc, all take time.
- * 
- * When you want to wait for something that takes time to finish before moving on, you place the 
+ *
+ * When you want to wait for something that takes time to finish before moving on, you place the
  * 'await' keyword in front of it to have the function wait for that to finish before continuing.
  */
-discordClient.on('ready', async function () {
+discordClient.on('ready', async function() {
   addDiscordChannelLogger(discordClient);
-  Logger.debug('FSEC Role Bot logged in as ' + discordClient.user.tag + '!')
-  
+  Logger.debug('FSEC Role Bot logged in as ' + discordClient.user.tag + '!');
+
   // Generate invite link for bot with a list of permissions we want the bot to have.
   const inviteLink = await discordClient.generateInvite(['CONNECT',
     'MANAGE_ROLES',
     'KICK_MEMBERS',
-    'MANAGE_NICKNAMES', 
-    'SEND_MESSAGES',   
+    'MANAGE_NICKNAMES',
+    'SEND_MESSAGES',
     'VIEW_CHANNEL']);
-  
+
   Logger.debug('Invite me to your server with this link: ' + inviteLink);
-  
+
+  // Preload/cache role-request messages to make sure the bot can respond to them.
+  await listenForRoleAssignmentMessages(discordClient);
+
   /*
   Set the bot's status on Discord to show when the server was last started.
   Date is formatted as "MMMM Do YYYY, h:mm:ss a" -> "January 1st 2018, 12:01:00 am"
-  */ 
+  */
   discordClient.user.setPresence({
     game: {
-      type: "LISTENING",
-      name: Settings.COMMAND_PREFIX + "help for commands!",
-    }
+      type: 'LISTENING',
+      name: Settings.COMMAND_PREFIX + 'help for commands!',
+    },
   });
 
   /**
@@ -60,52 +65,32 @@ discordClient.on('ready', async function () {
   createServerRoles(discordClient);
 });
 
-discordClient.on('message', function (message) {
-  if (message.channel.type === 'dm') return; // Ignore direct messages.
+discordClient.registry.registerGroups([
+  ['roles', 'Roles'],
+  ['admin', 'Administrator'],
+]);
 
-  if (message.content.startsWith(Settings.COMMAND_PREFIX)) {
-    
-    /**
-     * Get the first word in the user's message then remove the command prefix to get the actual
-     * command the user called.
-     */
-    const commandReceived = message.content.split(' ')[0].substring(Settings.COMMAND_PREFIX.length);
-
-    // TODO: Create a cleaner/modular command loader.
-    switch (commandReceived.toLowerCase()) {
-      case "order66":
-        if (message.member.hasPermission('ADMINISTRATOR') && !message.author.bot) {
-          removeAllRolesDebug(message);
-        }
-        break;
-
-      case "role":
-        assignUserRoles(message);
-        break;
-
-      case "roles":
-        message.channel.send(allAvailableRolesMessage, {code: true});
-        break;
-
-      case "removerole":
-        removeRoleCommand(message);
-        break;
-
-      case "about":
-        printAboutCommand(message);
-        break;
-
-      case "help":
-        helpCommand(message);
-        break;
-
-      case "ping":
-        message.reply('Pong!');
-        break;
-    }
-  }
+discordClient.registry.registerDefaultTypes(); // Boilerplate to prepare bot for commands.
+discordClient.registry.registerDefaultGroups();
+discordClient.registry.registerDefaultCommands({
+  eval_: false,
+  help: true,
+  ping: true,
+  prefix: false,
 });
 
-discordClient.login(Settings.BOT_TOKEN); // Log into Discord.
+// Register commands in the commands directory.
+discordClient.registry.registerCommandsIn(path.join(__dirname, 'commands'));
+
+/**
+ * Wrap main actions into this main function so that we can run commands async and keep it readable.
+ */
+async function main() {
+  await setupSettingsProvider(discordClient); // Set up settings database.
+  await loadEvents(discordClient); // Load any events from the events directory.
+  discordClient.login(Settings.BOT_TOKEN); // Log into Discord.
+}
+
+main();
 
 module.exports = discordClient; // Export the client for use in other files.

@@ -1,0 +1,7 @@
+{
+  "00000": {
+    "guild.loggingChannel": "123456789",
+    "guild.roles.roleAssignmentChannel": "987654321",
+    "guild.roles.roleAssignmentMessages": ["543219876", "1231818", "1248914"]
+  }
+}

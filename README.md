@@ -9,10 +9,19 @@ This Github also exists to help people learn how to make their own bots! We'll b
 This bot runs using Node.js, a way of running Javascript on the server, and the [Discord.js](https://discord.js.org/) library for connecting to the Discord server.
 
 ---
+## Requirements:
+* [Node.js](https://nodejs.org/en/) (v8.4.0+)
+
+---
 ## Todo:
 
+* [x] Assigning user roles
+  * [x] Case insensitivity when requesting a role.
+  * [x] New role request system with emotes
 * [x] Printing a list of all available roles.
 * [x] Help Command
+* [x] More modular command system.
+* [ ] Better error handling/recovery
 * [ ] Reporting issues and sending to admins.
 * [ ] Staggering logging messages to prevent spam.
 * [ ] Music Bot Functionality?

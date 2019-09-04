@@ -7,8 +7,8 @@ const DiscordChannelLogger = require('./DiscordChannelLogger');
  * Since the client takes time to login, we don't call this method until the client is ready, but
  * we can't add it in immediately since there will be no channel to log to if the client
  * isn't ready.
- * 
- * @param {Discord.Client} discordClient 
+ *
+ * @param {Discord.Client} discordClient
  */
 function addDiscordChannelLogger(discordClient) {
   logger.add(new DiscordChannelLogger({
