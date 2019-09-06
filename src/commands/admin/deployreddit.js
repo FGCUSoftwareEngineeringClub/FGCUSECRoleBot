@@ -4,12 +4,12 @@ const Logger = require('../../logging/Logger');
 const cheerio = require('cheerio');
 const request = require('request');
 
-class DeployNews extends Commando.Command {
+class DeployReddit extends Commando.Command {
     /** @param {Commando.CommandoClient} client */
     constructor(client) {
         super(client, {
             name: 'deployreddit',
-            description: 'Deploys the top news story in any subreddit every 24hrs',
+            description: 'Deploys the top img in any subreddit every 24hrs',
             guildOnly: true,
             group: 'admin',
             memberName: 'deployreddit',
@@ -28,19 +28,16 @@ class DeployNews extends Commando.Command {
     async run(message, { redditURL }) {
         request(redditURL, (error, response, html) => {
             if (!error && response.statusCode == 200) {
-                const $ = cheerio.load(html);
-                var picture_not_found = true;
-                var img_index = 0
-                while (picture_not_found) {
-                    //console.log($(html).find('img').eq(img_index).attr('src'))
-                    if ($(html).find('img').eq(img_index).attr('src') == undefined) {
-                        return
-                    }
-                    if ($(html).find('img').eq(img_index).attr('src').substring(8, 9) == 'i' || $(html).find('img').eq(img_index).attr('src').substring(8, 9) == 'p') {
-                        picture_not_found = false;
-                        return message.reply($(html).find('img').eq(img_index).attr('src'));
-                    } else {
-                        img_index++;
+                const json_data = JSON.parse(html);
+                for (var counter = 0; counter < json_data.data.dist; counter++) {
+                    //console.log(json_data.data.children[counter].data.post_hint)
+                    if (json_data.data.children[counter].data.post_hint == "image" || linksToImage(json_data.data.children[counter].data.url)) {
+                        const message_to_embed = {
+                            "image": {
+                                "url": json_data.data.children[counter].data.url
+                            }
+                        };
+                        return message.embed(message_to_embed);
                     }
                 }
             }
@@ -48,4 +45,13 @@ class DeployNews extends Commando.Command {
     }
 }
 
-module.exports = DeployNews;
+function linksToImage(link) {
+    img_extensions = ['jpg', 'png', 'gif']
+    //console.log(link.substr(link.length - 3));
+    if (img_extensions.includes(link.substr(link.length - 3))) {
+        return true;
+    }
+    return false;
+}
+
+module.exports = DeployReddit;
