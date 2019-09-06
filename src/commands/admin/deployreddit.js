@@ -37,7 +37,14 @@ class DeployReddit extends Commando.Command {
                                 "url": json_data.data.children[counter].data.url
                             }
                         };
-                        return message.embed(message_to_embed);
+                        message.embed(message_to_embed).then(function (reply) {
+                            //console.log(reply.id)
+                            reply.channel.fetchMessage(reply.id).then(function (message_retrieved) {
+                                message_retrieved.react('👎');
+                                message_retrieved.react('👍');
+                            });
+                        });
+                        return;
                     }
                 }
             }
