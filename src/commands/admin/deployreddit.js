@@ -27,13 +27,16 @@ class DeployReddit extends Commando.Command {
 
     run(message, { redditURL }) {
         // time default is UTC | 4 hours ahead of FL
-        var sched = later.parse.text('at 08:00am');
+        const daily_time = 'at 08:00am';
+        //const testing_time = 'every 10 seconds';
+        var sched = later.parse.text(daily_time);
         later.date.localTime();
         var t = later.setInterval(function () { query_reddit(message, redditURL) }, sched);   // t.clear() clears timer
     }
 }
 
 async function query_reddit(message, redditURL) {
+    redditURL += ".json"
     request(redditURL, (error, response, html) => {
         if (!error && response.statusCode == 200) {
             const json_data = JSON.parse(html);
