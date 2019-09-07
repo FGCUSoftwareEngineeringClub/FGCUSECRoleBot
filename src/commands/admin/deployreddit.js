@@ -1,8 +1,8 @@
 const Discord = require('discord.js');
 const Commando = require('discord.js-commando');
 const Logger = require('../../logging/Logger');
-const cheerio = require('cheerio');
 const request = require('request');
+var later = require('later');
 
 class DeployReddit extends Commando.Command {
     /** @param {Commando.CommandoClient} client */
@@ -25,31 +25,39 @@ class DeployReddit extends Commando.Command {
         });
     }
 
-    async run(message, { redditURL }) {
-        request(redditURL, (error, response, html) => {
-            if (!error && response.statusCode == 200) {
-                const json_data = JSON.parse(html);
-                for (var counter = 0; counter < json_data.data.dist; counter++) {
-                    //console.log(json_data.data.children[counter].data.post_hint)
-                    if (json_data.data.children[counter].data.post_hint == "image" || linksToImage(json_data.data.children[counter].data.url)) {
-                        const message_to_embed = {
-                            "image": {
-                                "url": json_data.data.children[counter].data.url
-                            }
-                        };
-                        message.embed(message_to_embed).then(function (reply) {
-                            //console.log(reply.id)
-                            reply.channel.fetchMessage(reply.id).then(function (message_retrieved) {
-                                message_retrieved.react('👎');
-                                message_retrieved.react('👍');
-                            });
+    run(message, { redditURL }) {
+        // time default is UTC | 4 hours ahead of FL
+        var sched = later.parse.text('at 09:28pm every day');
+        later.date.localTime();
+        var t = later.setInterval(function () { query_reddit(message, redditURL) }, sched);   // t.clear() clears timer
+    }
+}
+
+async function query_reddit(message, redditURL) {
+    request(redditURL, (error, response, html) => {
+        if (!error && response.statusCode == 200) {
+            const json_data = JSON.parse(html);
+            for (var counter = 0; counter < json_data.data.dist; counter++) {
+                //console.log(json_data.data.children[counter].data.post_hint)
+                if (json_data.data.children[counter].data.post_hint == "image" || linksToImage(json_data.data.children[counter].data.url)) {
+                    const message_to_embed = {
+                        "image": {
+                            "url": json_data.data.children[counter].data.url
+                        }
+                    };
+                    message.embed(message_to_embed).then(async function (reply) {
+                        //console.log(reply.id)
+                        reply.channel.fetchMessage(reply.id).then(async function (message_retrieved) {
+                            await message_retrieved.react('👍');
+                            await message_retrieved.react('👎');
                         });
-                        return;
-                    }
+                    });
+                    return;
                 }
             }
-        });
-    }
+        }
+    });
+    console.log(new Date());
 }
 
 function linksToImage(link) {
