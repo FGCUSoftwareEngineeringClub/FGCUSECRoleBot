@@ -27,7 +27,7 @@ class DeployReddit extends Commando.Command {
 
     run(message, { redditURL }) {
         // time default is UTC | 4 hours ahead of FL
-        var sched = later.parse.text('at 09:28pm every day');
+        var sched = later.parse.text('at 08:00am');
         later.date.localTime();
         var t = later.setInterval(function () { query_reddit(message, redditURL) }, sched);   // t.clear() clears timer
     }
