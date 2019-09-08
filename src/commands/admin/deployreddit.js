@@ -44,7 +44,10 @@ class DeployReddit extends Commando.Command {
      */
 
     async run(message, args) {
-        args.redditURL = "https://www.reddit.com/" + args.redditURL;
+        // appending the argument of "r/...." to make a URL
+        if (args.redditURL.search("reddit.com/") == -1) {
+            args.redditURL = "https://www.reddit.com/" + args.redditURL;
+        }
         const last_char_of_URL = args.redditURL.charAt(args.redditURL.length - 1);
         switch (last_char_of_URL) {
             case '/':
@@ -77,11 +80,11 @@ class DeployReddit extends Commando.Command {
                 return;
             }
 
-            // time default is UTC | 4 hours ahead of FL
+            //console.log(message.channel.id) gets the ID of current text channel
             const daily_time = 'at 08:00am';
             const testing_time = 'every 10 seconds';
             var sched = later.parse.text(testing_time);
-            //console.log(message.channel.id) gets the ID of current text channel
+            // time default is UTC | 4 hours ahead of FL
             later.date.localTime();
             var interval_instance = later.setInterval(function () { query_reddit(message, args.redditURL, interval_instance) }, sched);   // interval_instance.clear() clears timer
         });
