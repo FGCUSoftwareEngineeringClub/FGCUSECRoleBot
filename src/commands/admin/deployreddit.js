@@ -44,41 +44,53 @@ class DeployReddit extends Commando.Command {
      */
 
     async run(message, args) {
-        // catching broken link errors
-        var error_given = false;
+        args.redditURL = "https://www.reddit.com/" + args.redditURL;
+        const last_char_of_URL = args.redditURL.charAt(args.redditURL.length - 1);
+        switch (last_char_of_URL) {
+            case '/':
+                args.redditURL += ".json"
+                break;
+            default:
+                args.redditURL += "/.json"
+                break;
+        }
+        console.log(args.redditURL)
 
-        await request(args.redditURL, (error, response, html) => {
+
+        // catching broken link errors
+        var error_given;
+        await request(args.redditURL, async (error, response, html) => {
+            var json_data;
+            try {
+                json_data = await JSON.parse(html)
+            } catch (e) {
+                message.say("Sorry, this link did not work.");
+                return;
+            }
+            error_given = json_data.error == '404' ? true : false;
+
             if (error) {
                 message.say("Sorry, this link did not work.");
-                error_given = true;
+                return;
+            } else if (error_given == true) {
+                message.say("Sorry, this link did not work.");
+                return;
             }
+
+            // time default is UTC | 4 hours ahead of FL
+            const daily_time = 'at 08:00am';
+            const testing_time = 'every 10 seconds';
+            var sched = later.parse.text(testing_time);
+            //console.log(message.channel.id) gets the ID of current text channel
+            later.date.localTime();
+            var interval_instance = later.setInterval(function () { query_reddit(message, args.redditURL, interval_instance) }, sched);   // interval_instance.clear() clears timer
         });
-
-        if (error_given) return;
-
-        // time default is UTC | 4 hours ahead of FL
-        const daily_time = 'at 08:00am';
-        const testing_time = 'every 10 seconds';
-        var sched = later.parse.text(testing_time);
-        //console.log(message.channel.id) gets the ID of current text channel
-        console.log(args.redditURL.charAt(args.redditURL.length - 1))
-        later.date.localTime();
-        var interval_instance = later.setInterval(function () { query_reddit(message, args.redditURL, interval_instance) }, sched);   // interval_instance.clear() clears timer
     }
 }
 
 async function query_reddit(message, redditURL, interval_instance) {
-    const last_char_of_URL = redditURL.charAt(redditURL.length - 1);
-    switch (last_char_of_URL) {
-        case '/':
-            redditURL += ".json"
-            break;
-        default:
-            redditURL += "/.json"
-            break;
-    }
     //console.log(redditURL)
-    request(redditURL, (error, response, html) => {
+    await request(redditURL, (error, response, html) => {
         if (!error && response.statusCode == 200) {
             const json_data = JSON.parse(html);
             for (var counter = 0; counter < json_data.data.dist; counter++) {
