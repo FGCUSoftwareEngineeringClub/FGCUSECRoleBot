@@ -25,18 +25,59 @@ class DeployReddit extends Commando.Command {
         });
     }
 
-    run(message, { redditURL }) {
+    /**
+     *  TO-DO
+     *  Example Args
+     *  !!deployreddit --stop
+     *      stops execution
+     *  !!deployreddit --edit
+     *      here's how you can edit:
+     *  !!deployreddit --edit https:newlink
+     *      Link updated
+     * !!deployreddit --status
+     *      gives current link, and iteration time
+     * 
+     *  if (!!deployreddit http:link) when an instance is already deployed
+     *      send message to try using --stop or --edit
+     * 
+     *  upon bot reset, if instance was active when shutdown, relauch this instance
+     */
+
+    async run(message, args) {
+        // catching broken link errors
+        var error_given = false;
+
+        await request(args.redditURL, (error, response, html) => {
+            if (error) {
+                message.say("Sorry, this link did not work.");
+                error_given = true;
+            }
+        });
+
+        if (error_given) return;
+
         // time default is UTC | 4 hours ahead of FL
         const daily_time = 'at 08:00am';
-        //const testing_time = 'every 10 seconds';
-        var sched = later.parse.text(daily_time);
+        const testing_time = 'every 10 seconds';
+        var sched = later.parse.text(testing_time);
+        //console.log(message.channel.id) gets the ID of current text channel
+        console.log(args.redditURL.charAt(args.redditURL.length - 1))
         later.date.localTime();
-        var t = later.setInterval(function () { query_reddit(message, redditURL) }, sched);   // t.clear() clears timer
+        var interval_instance = later.setInterval(function () { query_reddit(message, args.redditURL, interval_instance) }, sched);   // interval_instance.clear() clears timer
     }
 }
 
-async function query_reddit(message, redditURL) {
-    redditURL += ".json"
+async function query_reddit(message, redditURL, interval_instance) {
+    const last_char_of_URL = redditURL.charAt(redditURL.length - 1);
+    switch (last_char_of_URL) {
+        case '/':
+            redditURL += ".json"
+            break;
+        default:
+            redditURL += "/.json"
+            break;
+    }
+    //console.log(redditURL)
     request(redditURL, (error, response, html) => {
         if (!error && response.statusCode == 200) {
             const json_data = JSON.parse(html);
