@@ -26,15 +26,20 @@ const settingKeys = {
   DEFAULT_LOGGING_CHANNEL: 'guild.loggingChannel',
   DEFAULT_ROLE_ASSIGNMENT_CHANNEL: 'guild.roles.roleAssignmentChannel',
   ROLE_ASSIGNMENT_MESSAGES: 'guild.roles.roleAssignmentMessages',
-  TEST_MESSAGE: '--stop'
+};
+
+const redditKeys = {
+  TEST_MESSAGE: '--stop',
 };
 
 /** @type {string[]} */
 const settingNames = Object.getOwnPropertyNames(settingKeys).map((key) => settingKeys[key]);
-
+const redditNames = Object.getOwnPropertyNames(redditKeys).map((key) => redditKeys[key]);
 
 module.exports = {
   setupSettingsProvider,
   settingsKeys: settingKeys,
   settingNames: settingNames,
+  redditKeys: redditKeys,
+  redditNames: redditNames,
 };
