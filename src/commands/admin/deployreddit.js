@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const Commando = require('discord.js-commando');
 const Logger = require('../../logging/Logger');
+const {settingsKeys, settingNames} = require('../../settings/SettingsProvider');
 const request = require('request');
 var later = require('later');
 
@@ -39,6 +40,7 @@ class DeployReddit extends Commando.Command {
 
         switch (messageArguments[0]) {
             case '--stop':
+                setSettingFromKey(message,messageArguments);
                 return;
             case '--edit':
                 if (messageArguments[1].length > 0) {
@@ -99,6 +101,28 @@ class DeployReddit extends Commando.Command {
         });
     }
 }
+
+/**
+ * 
+ * ANY NEW SETTINGS NEED TO BE ADDED TO "SettingsProvider"
+ * 
+ */
+
+function setSettingFromKey(message, messageArguments) {
+    const [settingKey, newSetting] = messageArguments;
+    console.log(settingKey + " " + newSetting);
+    if (settingNames.includes(settingKey)) {
+      Logger.info({
+        server: message.guild,
+        message: `${message.author.tag} updated ${settingKey} to ${newSetting}`,
+      });
+      message.guild.settings.set(settingKey, newSetting);
+      return message.reply(`${settingKey} was assigned '${newSetting}'`);
+    } else {
+      return message.reply('Only preset settings can be set or modified. ' +
+                            'Use --listkeys to see a list of possible options.');
+    }
+  }
 
 async function query_reddit(message, redditURL, interval_instance) {
     //console.log(redditURL)

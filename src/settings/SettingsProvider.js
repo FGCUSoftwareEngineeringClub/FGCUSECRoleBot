@@ -26,6 +26,7 @@ const settingKeys = {
   DEFAULT_LOGGING_CHANNEL: 'guild.loggingChannel',
   DEFAULT_ROLE_ASSIGNMENT_CHANNEL: 'guild.roles.roleAssignmentChannel',
   ROLE_ASSIGNMENT_MESSAGES: 'guild.roles.roleAssignmentMessages',
+  TEST_MESSAGE: '--stop'
 };
 
 /** @type {string[]} */
