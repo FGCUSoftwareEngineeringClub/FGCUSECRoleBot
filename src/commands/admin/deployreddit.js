@@ -13,15 +13,6 @@ class DeployReddit extends Commando.Command {
             guildOnly: true,
             group: 'admin',
             memberName: 'deployreddit',
-
-            args: [
-                {
-                    key: 'redditURL',
-                    prompt: 'What subreddit URL would you like to follow?',
-                    type: 'string',
-
-                },
-            ],
         });
     }
 
@@ -44,25 +35,43 @@ class DeployReddit extends Commando.Command {
      */
 
     async run(message, args) {
-        // appending the argument of "r/...." to make a URL
-        if (args.redditURL.search("reddit.com/") == -1) {
-            args.redditURL = "https://www.reddit.com/" + args.redditURL;
+        const messageArguments = args.split(' ');
+
+        switch (messageArguments[0]) {
+            case '--stop':
+                return;
+            case '--edit':
+                if (messageArguments[1].length > 0) {
+                    //test the url and replace
+                } else {
+                    //send message about how to edit
+                }
+                return;
+            case '--status':
+                return;
+            default:
+                break;
         }
-        const last_char_of_URL = args.redditURL.charAt(args.redditURL.length - 1);
+
+        // appending the argument of "r/...." to make a URL
+        if (messageArguments[0].search("reddit.com/") == -1) {
+            messageArguments[0] = "https://www.reddit.com/" + messageArguments[0];
+        }
+        const last_char_of_URL = messageArguments[0].charAt(messageArguments[0].length - 1);
         switch (last_char_of_URL) {
             case '/':
-                args.redditURL += ".json"
+                messageArguments[0] += ".json"
                 break;
             default:
-                args.redditURL += "/.json"
+                messageArguments[0] += "/.json"
                 break;
         }
-        console.log(args.redditURL)
+        console.log(messageArguments[0])
 
 
         // catching broken link errors
         var error_given;
-        await request(args.redditURL, async (error, response, html) => {
+        await request(messageArguments[0], async (error, response, html) => {
             var json_data;
             try {
                 json_data = await JSON.parse(html)
@@ -86,7 +95,7 @@ class DeployReddit extends Commando.Command {
             var sched = later.parse.text(testing_time);
             // time default is UTC | 4 hours ahead of FL
             later.date.localTime();
-            var interval_instance = later.setInterval(function () { query_reddit(message, args.redditURL, interval_instance) }, sched);   // interval_instance.clear() clears timer
+            var interval_instance = later.setInterval(function () { query_reddit(message, messageArguments[0], interval_instance) }, sched);   // interval_instance.clear() clears timer
         });
     }
 }
