@@ -45,7 +45,7 @@ class DeployReddit extends Commando.Command {
                     aaasetRedditFromKey(message, messageArguments);
                 } else {
                     messageArguments[0] = "guild.reddit.instances"
-                    console.log(aaagetValueOfReddit(message, messageArguments, "12313"))
+                    console.log(aaagetValueOfReddit(message, messageArguments, "1234"))
                 }
                 return;
             case '--edit':
@@ -166,6 +166,7 @@ function aaasetRedditFromKey(message, messageArguments) {
             ]
         };
         default_instance_object.instances.push({ id12313: "something1" });
+        default_instance_object.instances.push({ id1234: "something2" });
         default_instance_object = JSON.stringify(default_instance_object);
         console.log(default_instance_object)
         message.guild.settings.set(redditKey, default_instance_object);
@@ -201,7 +202,7 @@ function getValueOfReddit(message, messageArguments, channelID) {
 function aaagetValueOfReddit(message, messageArguments, channelID, setting_default) {
     channelID = "id" + channelID;
     var redditValue = message.guild.settings.get(messageArguments[0], null);
-    console.log(redditValue)
+    //console.log(redditValue)
     if (redditValue == null) {
         if (!setting_default) {
             message.reply(`${messageArguments[0]} was not found`);
@@ -211,15 +212,12 @@ function aaagetValueOfReddit(message, messageArguments, channelID, setting_defau
         }
     }
     redditValue = JSON.parse(redditValue)
-    console.log(redditValue)
-    console.log(redditValue.instances)
-    console.log(redditValue.instances[0].id12313)
-    console.log("test-text")
     for (key in redditValue.instances) {
-        console.log(redditValue + "test-text 2")
-        if (channelID === redditValue.instances.channelID) {
-            //console.log(redditValue.instances[key]);
-            redditValue = redditValue.instances[key];
+        //console.log(key)
+        //console.log(redditValue.instances[key][channelID])
+        if (redditValue.instances[key][channelID] !== undefined) {
+            //console.log("Matched!");
+            redditValue = redditValue.instances[key][channelID];
             break;
         }
     }
