@@ -29,7 +29,7 @@ const settingKeys = {
 };
 
 const redditKeys = {
-  TEST_MESSAGE: '--stop',
+  TEST_MESSAGE: 'guild.reddit.stop',
 };
 
 /** @type {string[]} */

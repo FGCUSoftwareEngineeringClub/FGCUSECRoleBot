@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const Commando = require('discord.js-commando');
 const Logger = require('../../logging/Logger');
-const {redditKeys, redditNames} = require('../../settings/SettingsProvider');
+const { redditKeys, redditNames } = require('../../settings/SettingsProvider');
 const request = require('request');
 var later = require('later');
 
@@ -40,8 +40,13 @@ class DeployReddit extends Commando.Command {
 
         switch (messageArguments[0]) {
             case '--stop':
-                getValueOfReddit(message,messageArguments)
-                //setRedditFromKey(message,messageArguments);
+                if (messageArguments.length > 1) {
+                    messageArguments[0] = "guild.reddit.stop"
+                    setRedditFromKey(message, messageArguments);
+                } else {
+                    messageArguments[0] = "guild.reddit.stop"
+                    getValueOfReddit(message, messageArguments)
+                }
                 return;
             case '--edit':
                 if (messageArguments[1].length > 0) {
@@ -58,7 +63,11 @@ class DeployReddit extends Commando.Command {
 
         // appending the argument of "r/...." to make a URL
         if (messageArguments[0].search("reddit.com/") == -1) {
-            messageArguments[0] = "https://www.reddit.com/" + messageArguments[0];
+            if (messageArguments[0].search("/") == 0) {
+                messageArguments[0] = "https://www.reddit.com" + messageArguments[0];
+            } else {
+                messageArguments[0] = "https://www.reddit.com/" + messageArguments[0];
+            }
         }
         const last_char_of_URL = messageArguments[0].charAt(messageArguments[0].length - 1);
         switch (last_char_of_URL) {
@@ -113,26 +122,26 @@ function setRedditFromKey(message, messageArguments) {
     const [redditKey, newSetting] = messageArguments;
     console.log(redditKey + " " + newSetting);
     if (redditNames.includes(redditKey)) {
-      Logger.info({
-        server: message.guild,
-        message: `${message.author.tag} updated ${redditKey} to ${newSetting}`,
-      });
-      message.guild.settings.set(redditKey, newSetting);
-      return message.reply(`${redditKey} was assigned '${newSetting}'`);
+        Logger.info({
+            server: message.guild,
+            message: `${message.author.tag} updated ${redditKey} to ${newSetting}`,
+        });
+        message.guild.settings.set(redditKey, newSetting);
+        return message.reply(`${redditKey} was assigned '${newSetting}'`);
     } else {
-      return message.reply('Only preset settings can be set or modified. ' +
-                            'Use --listkeys to see a list of possible options.');
+        return message.reply('Only preset settings can be set or modified. ' +
+            'Use --listkeys to see a list of possible options.');
     }
-  }
+}
 
-  function getValueOfReddit(message, messageArguments) {
+function getValueOfReddit(message, messageArguments) {
     const redditValue = message.guild.settings.get(messageArguments[0], null);
     if (redditValue) {
-      return message.reply(`Value for ${messageArguments[0]} is ${redditValue}`);
+        return message.reply(`Value for ${messageArguments[0]} is ${redditValue}`);
     } else {
-      return message.reply(`There is no value for key ${messageArguments[0]}`);
+        return message.reply(`There is no value for key ${messageArguments[0]}`);
     }
-  }
+}
 
 async function query_reddit(message, redditURL, interval_instance) {
     //console.log(redditURL)
