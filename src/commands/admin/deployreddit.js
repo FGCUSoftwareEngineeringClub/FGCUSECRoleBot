@@ -41,10 +41,10 @@ class DeployReddit extends Commando.Command {
         switch (messageArguments[0]) {
             case '--stop':
                 if (messageArguments.length > 1) {
-                    messageArguments[0] = "guild.reddit.stop"
+                    messageArguments[0] = "guild.reddit.instances"
                     setRedditFromKey(message, messageArguments);
                 } else {
-                    messageArguments[0] = "guild.reddit.stop"
+                    messageArguments[0] = "guild.reddit.instances"
                     getValueOfReddit(message, messageArguments)
                 }
                 return;
@@ -115,6 +115,18 @@ class DeployReddit extends Commando.Command {
 /**
  * 
  * ANY NEW SETTINGS NEED TO BE ADDED TO "SettingsProvider"
+ * 
+ * 
+ *    Method to alter guild.reddit.instance
+ array = [["a","b","c"],["d","e","f"],["g","h","i"]]
+ console.log(array)
+ for (element in array) {
+   if(array[element][0] == "d") {
+     array.splice(element,1)
+   }
+ }
+ console.log(array)
+ * 
  * 
  */
 
