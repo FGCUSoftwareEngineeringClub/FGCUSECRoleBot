@@ -162,16 +162,12 @@ function aaasetRedditFromKey(message, messageArguments) {
     const [redditKey, newSetting] = messageArguments;
     if (aaagetValueOfReddit(message, messageArguments, "12313", true) === undefined) {
         var default_instance_object = {
-            "instances": {
-            }
+            "instances": [
+            ]
         };
-        default_instance_object = JSON.stringify(default_instance_object);
-        message.guild.settings.set(redditKey, default_instance_object);
-        default_instance_object = JSON.parse(default_instance_object);
-        console.log(default_instance_object.instances)
         default_instance_object.instances.push({ id12313: "something1" });
-        console.log(default_instance_object)
         default_instance_object = JSON.stringify(default_instance_object);
+        console.log(default_instance_object)
         message.guild.settings.set(redditKey, default_instance_object);
         console.log("Default created!")
     }
@@ -215,9 +211,13 @@ function aaagetValueOfReddit(message, messageArguments, channelID, setting_defau
         }
     }
     redditValue = JSON.parse(redditValue)
+    console.log(redditValue)
+    console.log(redditValue.instances)
+    console.log(redditValue.instances[0].id12313)
+    console.log("test-text")
     for (key in redditValue.instances) {
-        //console.log(key)
-        if (channelID === key) {
+        console.log(redditValue + "test-text 2")
+        if (channelID === redditValue.instances.channelID) {
             //console.log(redditValue.instances[key]);
             redditValue = redditValue.instances[key];
             break;
