@@ -42,10 +42,10 @@ class DeployReddit extends Commando.Command {
             case '--stop':
                 if (messageArguments.length > 1) {
                     messageArguments[0] = "guild.reddit.instances"
-                    aaasetRedditFromKey(message, messageArguments);
+                    setRedditFromKey(message, messageArguments);
                 } else {
                     messageArguments[0] = "guild.reddit.instances"
-                    console.log(aaagetValueOfReddit(message, messageArguments, "12313"))
+                    console.log(getValueOfReddit(message, messageArguments, "12313"))
                 }
                 return;
             case '--edit':
@@ -56,7 +56,7 @@ class DeployReddit extends Commando.Command {
                 }
                 return;
             case '--status':
-                TESTING(message);
+                delete_instances(message);
                 return;
             default:
                 break;
@@ -131,36 +131,9 @@ class DeployReddit extends Commando.Command {
  * 
  */
 
-function setRedditFromKey(message, messageArguments) {
+function setRedditFromKey(message, messageArguments, channelID) {
     const [redditKey, newSetting] = messageArguments;
-    //console.log(redditKey + " " + newSetting);
-    //var collection = [["a", "b", "c"], ["d", "e", "f"], ["g", "h", "i"]]
-    //var collection = { type: "Fiat", model: "500", color: "white" };
-    var collection = {
-        "instances": {
-            id12313: "something1",
-            id1234: "something2",
-        }
-    };
-
-
-
-    if (redditNames.includes(redditKey)) {
-        Logger.info({
-            server: message.guild,
-            message: `${message.author.tag} updated ${redditKey} to ${newSetting}`,
-        });
-        message.guild.settings.set(redditKey, JSON.stringify(collection));
-        return message.reply(`${redditKey} was assigned '${newSetting}'`);
-    } else {
-        return message.reply('Only preset settings can be set or modified. ' +
-            'Use --listkeys to see a list of possible options.');
-    }
-}
-
-function aaasetRedditFromKey(message, messageArguments, channelID) {
-    const [redditKey, newSetting] = messageArguments;
-    if (aaagetValueOfReddit(message, messageArguments, "12313", true) === undefined) {
+    if (getValueOfReddit(message, messageArguments, "12313", true) === undefined) {
         var default_instance_object = {
             "instances": [
             ]
@@ -171,6 +144,7 @@ function aaasetRedditFromKey(message, messageArguments, channelID) {
         //console.log(default_instance_object)
         message.guild.settings.set(redditKey, default_instance_object);
         console.log("Default created!")
+        message.reply(`Reddit instances can now be made!`);
         return;
     }
     var redditValue = message.guild.settings.get(redditKey, null);
@@ -199,32 +173,11 @@ function aaasetRedditFromKey(message, messageArguments, channelID) {
     }
 }
 
-function TESTING(message) {
+function delete_instances(message) {
     console.log(message.guild.settings.remove('guild.reddit.instances', null))
 }
 
-function getValueOfReddit(message, messageArguments, channelID) {
-    var redditValue = message.guild.settings.get(messageArguments, null);
-    console.log(messageArguments)
-    redditValue = JSON.parse(redditValue)
-    console.log(redditValue)
-    //console.log(redditValue.instances.id12313)
-    //console.log(redditValue.instances.id1234)
-    for (x in redditValue.instances) {
-        if (channelID === x) console.log(redditValue.instances[x]);
-        redditValue.instances[x] = "changedval"
-        console.log(redditValue.instances[x])
-        var toChange = JSON.stringify(redditValue);
-        message.guild.settings.set("guild.reddit.instances", toChange);
-    }
-    if (redditValue) {
-        return message.reply(`Value for ${messageArguments[0]} is ${redditValue}`);
-    } else {
-        return message.reply(`There is no value for key ${messageArguments[0]}`);
-    }
-}
-
-function aaagetValueOfReddit(message, messageArguments, channelID, setting_default) {
+function getValueOfReddit(message, messageArguments, channelID, setting_default) {
     channelID = "id" + channelID;
     var redditValue = message.guild.settings.get(messageArguments[0], null);
     if (redditValue == null) {
