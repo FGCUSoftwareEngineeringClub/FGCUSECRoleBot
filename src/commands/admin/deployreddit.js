@@ -45,7 +45,7 @@ class DeployReddit extends Commando.Command {
                     aaasetRedditFromKey(message, messageArguments);
                 } else {
                     messageArguments[0] = "guild.reddit.instances"
-                    console.log(aaagetValueOfReddit(message, messageArguments, "1234"))
+                    console.log(aaagetValueOfReddit(message, messageArguments, "12313"))
                 }
                 return;
             case '--edit':
@@ -160,7 +160,6 @@ function setRedditFromKey(message, messageArguments) {
 
 function aaasetRedditFromKey(message, messageArguments, channelID) {
     const [redditKey, newSetting] = messageArguments;
-    //console.log(aaagetValueOfReddit(message, messageArguments, "12313"))
     if (aaagetValueOfReddit(message, messageArguments, "12313", true) === undefined) {
         var default_instance_object = {
             "instances": [
@@ -178,20 +177,25 @@ function aaasetRedditFromKey(message, messageArguments, channelID) {
     redditValue = JSON.parse(redditValue)
     for (key in redditValue.instances) {
         //console.log(key)
-        console.log(redditValue.instances[0]["id12313"])
+        //console.log(redditValue.instances[0]["id12313"])
         if (redditValue.instances[key]["id12313"] !== undefined) {
             //console.log("Matched!");
-            redditValue = redditValue.instances[key]["id12313"];
+            redditValue.instances[key]["id12313"] = "message argument 6";
+            redditValue = JSON.stringify(redditValue);
+            if (typeof redditValue === 'string') {
+                message.guild.settings.set(redditKey, redditValue);
+                message.reply(`${redditKey} was assigned ${JSON.parse(redditValue).instances[key]["id12313"]}`);
+                return redditValue;
+            }
             break;
         }
     }
     //console.log(redditValue)
+    //console.log(redditKey)
+    //message.guild.settings.set(redditKey, JSON.stringify(collection));
     if (typeof redditValue !== 'string') {
         message.reply(`The given ID for ${messageArguments[0]} was not found`);
         return null;
-    } else {
-        message.reply(`Value for ${messageArguments[0]} is ${redditValue}`);
-        return redditValue;
     }
 }
 
@@ -247,8 +251,12 @@ function aaagetValueOfReddit(message, messageArguments, channelID, setting_defau
         message.reply(`The given ID for ${messageArguments[0]} was not found`);
         return null;
     } else {
-        message.reply(`Value for ${messageArguments[0]} is ${redditValue}`);
-        return redditValue;
+        if (setting_default != true) {
+            message.reply(`Value for ${messageArguments[0]} is ${redditValue}`);
+            return redditValue;
+        } else {
+            return redditValue;
+        }
     }
 }
 
