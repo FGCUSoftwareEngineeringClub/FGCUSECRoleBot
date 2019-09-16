@@ -158,8 +158,9 @@ function setRedditFromKey(message, messageArguments) {
     }
 }
 
-function aaasetRedditFromKey(message, messageArguments) {
+function aaasetRedditFromKey(message, messageArguments, channelID) {
     const [redditKey, newSetting] = messageArguments;
+    //console.log(aaagetValueOfReddit(message, messageArguments, "12313"))
     if (aaagetValueOfReddit(message, messageArguments, "12313", true) === undefined) {
         var default_instance_object = {
             "instances": [
@@ -168,9 +169,29 @@ function aaasetRedditFromKey(message, messageArguments) {
         default_instance_object.instances.push({ id12313: "something1" });
         default_instance_object.instances.push({ id1234: "something2" });
         default_instance_object = JSON.stringify(default_instance_object);
-        console.log(default_instance_object)
+        //console.log(default_instance_object)
         message.guild.settings.set(redditKey, default_instance_object);
         console.log("Default created!")
+        return;
+    }
+    var redditValue = message.guild.settings.get(redditKey, null);
+    redditValue = JSON.parse(redditValue)
+    for (key in redditValue.instances) {
+        //console.log(key)
+        console.log(redditValue.instances[0]["id12313"])
+        if (redditValue.instances[key]["id12313"] !== undefined) {
+            //console.log("Matched!");
+            redditValue = redditValue.instances[key]["id12313"];
+            break;
+        }
+    }
+    //console.log(redditValue)
+    if (typeof redditValue !== 'string') {
+        message.reply(`The given ID for ${messageArguments[0]} was not found`);
+        return null;
+    } else {
+        message.reply(`Value for ${messageArguments[0]} is ${redditValue}`);
+        return redditValue;
     }
 }
 
@@ -202,7 +223,6 @@ function getValueOfReddit(message, messageArguments, channelID) {
 function aaagetValueOfReddit(message, messageArguments, channelID, setting_default) {
     channelID = "id" + channelID;
     var redditValue = message.guild.settings.get(messageArguments[0], null);
-    //console.log(redditValue)
     if (redditValue == null) {
         if (!setting_default) {
             message.reply(`${messageArguments[0]} was not found`);
