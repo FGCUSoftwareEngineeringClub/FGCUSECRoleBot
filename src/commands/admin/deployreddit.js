@@ -92,6 +92,7 @@ class DeployReddit extends Commando.Command {
                         }
 
                         console.log(messageArguments)
+                        console.log("aa333aa")
                         setRedditFromKey(message, messageArguments, messageArguments[1], true);
 
                     });
@@ -105,10 +106,14 @@ class DeployReddit extends Commando.Command {
                     getValueOfReddit(message, messageArguments, messageArguments[1])
                 } else {
                     message.reply(`!!deployreddit --status <channelID>\nGives information about the given channel with respect to reddit deployment.`);
+                    let redditValue = message.guild.settings.get("guild.reddit.instances", null);
+                    console.log(redditValue);
                 }
                 return;
             case '--removeall':
                 delete_instances(message);
+                let redditValue = message.guild.settings.get("guild.reddit.instances", null);
+                console.log(redditValue);
                 return;
             default:
                 if (messageArguments.length == 2) {
@@ -153,7 +158,32 @@ class DeployReddit extends Commando.Command {
                         }
 
                         messageArguments = ["guild.reddit.instances", messageArguments[0], messageArguments[1]];
-                        setRedditFromKey(message, messageArguments, messageArguments[1], false);
+
+                        //if instances doesnt exist, make it exist
+                        // set reddti key
+
+                        if (messageArguments[1] === undefined) {
+                            messageArguments[1] = "id" + message.channel.id;
+                        } else {
+                            messageArguments[1] = "id" + messageArguments[1];
+                        }
+
+                        if (getValueOfReddit(message, messageArguments, messageArguments[1], true) === undefined) {
+                            var default_instance_object = {
+                                "instances": [
+                                ]
+                            };
+                            default_instance_object.instances.push({ [messageArguments[1]]: messageArguments[2] });
+                            default_instance_object = JSON.stringify(default_instance_object);
+                            message.guild.settings.set("guild.reddit.instances", default_instance_object);
+                            console.log("Default created!")
+                            message.reply(`First Reddit instance made!`);
+                            return;
+                        } else {
+                            setRedditFromKey(message, messageArguments, messageArguments[1], false);
+                            console.log("new instance added")
+                            return;
+                        }
 
                         //console.log(message.channel.id) gets the ID of current text channel
                         const daily_time = 'at 08:00am';
@@ -223,6 +253,7 @@ function setRedditFromKey(message, messageArguments, channelID, edit) {
     const [redditKey, tempChannelID, newSetting] = messageArguments;
     channelID = tempChannelID;
     status_of_value = getValueOfReddit(message, messageArguments, channelID, true);
+    console.log(status_of_value)
     if (status_of_value === undefined && edit == true) {
         if (channelID === undefined) {
             channelID = "id" + message.channel.id;
@@ -241,12 +272,15 @@ function setRedditFromKey(message, messageArguments, channelID, edit) {
         return;
     } else if (status_of_value === null) {
         console.log("ID not found")
-        return;
+        //return;
     }
-    if (channelID === undefined) {
-        channelID = "id" + message.channel.id;
-    } else {
-        channelID = "id" + channelID;
+
+    if (channelID.search("id") == -1) {
+        if (channelID === undefined) {
+            channelID = "id" + message.channel.id;
+        } else {
+            channelID = "id" + channelID;
+        }
     }
 
     var redditValue = message.guild.settings.get(redditKey, null);
@@ -279,12 +313,15 @@ function setRedditFromKey(message, messageArguments, channelID, edit) {
 }
 
 function getValueOfReddit(message, messageArguments, channelID, setting_default) {
-    if (channelID === undefined) {
-        channelID = "id" + message.channel.id;
-    } else {
-        channelID = "id" + channelID;
+    if (channelID.search("id") == -1) {
+        if (channelID === undefined) {
+            channelID = "id" + message.channel.id;
+        } else {
+            channelID = "id" + channelID;
+        }
     }
     var redditValue = message.guild.settings.get(messageArguments[0], null);
+    console.log(redditValue + "AAAAAAAAAAAAA")
     if (redditValue == null) {
         if (!setting_default) {
             message.reply(`${messageArguments[0]} was not found`);
@@ -294,6 +331,8 @@ function getValueOfReddit(message, messageArguments, channelID, setting_default)
         }
     }
     redditValue = JSON.parse(redditValue)
+    console.log(redditValue)
+    console.log(channelID)
     for (key in redditValue.instances) {
         if (redditValue.instances[key][channelID] !== undefined) {
             //console.log("Matched!");
