@@ -192,7 +192,7 @@ function setRedditFromKey(message, messageArguments, channelID) {
         channelID = "id" + channelID;
     }
 
-    channelID = "19"
+    channelID = "23"
 
     var redditValue = message.guild.settings.get(redditKey, null);
     redditValue = JSON.parse(redditValue)
@@ -223,7 +223,7 @@ function setRedditFromKey(message, messageArguments, channelID) {
         message.reply(`The given ID for ${messageArguments[0]} was not found`);
         return null;
     } else {
-        message.reply(`${redditKey} was assigned ${JSON.parse(redditValue).instances[channelID]}`);
+        message.reply(`${channelID} was assigned ${JSON.parse(redditValue).instances[JSON.parse(redditValue).instances.length - 1][channelID]}`);
         return;
     }
 }
