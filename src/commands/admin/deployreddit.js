@@ -40,29 +40,26 @@ class DeployReddit extends Commando.Command {
 
         switch (messageArguments[0]) {
             case '--stop':
-                if (messageArguments.length > 1) {
-                    messageArguments[0] = "guild.reddit.instances"
-                    setRedditFromKey(message, messageArguments, "12313");
+                messageArguments[0] = "guild.reddit.instances"
+                if (messageArguments.length == 2) {
+                    // removes channel key and reddit URL from db
+                    removeRedditFromKey(message, messageArguments, messageArguments[1]);
                 } else {
-                    messageArguments[0] = "guild.reddit.instances"
-                    console.log(getValueOfReddit(message, messageArguments, "12313"));
+                    message.reply(`!!deployreddit --stop <channelID>\nStops the execution of the reddit deployment in the specified channel.`);
                 }
                 return;
             case '--edit':
+                messageArguments[0] = "guild.reddit.instances"
                 if (messageArguments[1] !== undefined) {
                     if (messageArguments[1].length > 0) {
                         //test the url and replace
-                        messageArguments[0] = "guild.reddit.instances"
-                        removeRedditFromKey(message, messageArguments, "12313");
                     }
                 } else {
                     //send message about how to edit
-                    messageArguments[0] = "guild.reddit.instances"
-                    removeRedditFromKey(message, messageArguments, "12313");
                 }
                 return;
             case '--status':
-                delete_instances(message);
+                messageArguments[0] = "guild.reddit.instances"
                 return;
             default:
                 break;
