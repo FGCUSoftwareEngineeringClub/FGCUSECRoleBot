@@ -192,8 +192,6 @@ function setRedditFromKey(message, messageArguments, channelID) {
         channelID = "id" + channelID;
     }
 
-    channelID = "23"
-
     var redditValue = message.guild.settings.get(redditKey, null);
     redditValue = JSON.parse(redditValue)
     for (key in redditValue.instances) {
@@ -219,13 +217,8 @@ function setRedditFromKey(message, messageArguments, channelID) {
     redditValue = JSON.stringify(redditValue);
     message.guild.settings.set(redditKey, redditValue);
 
-    if (typeof redditValue !== 'string') {
-        message.reply(`The given ID for ${messageArguments[0]} was not found`);
-        return null;
-    } else {
-        message.reply(`${channelID} was assigned ${JSON.parse(redditValue).instances[JSON.parse(redditValue).instances.length - 1][channelID]}`);
-        return;
-    }
+    message.reply(`${channelID} was assigned ${newSetting}`);
+    return;
 }
 
 function getValueOfReddit(message, messageArguments, channelID, setting_default) {
