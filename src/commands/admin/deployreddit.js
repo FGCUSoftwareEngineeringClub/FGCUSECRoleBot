@@ -176,22 +176,18 @@ class DeployReddit extends Commando.Command {
                             default_instance_object.instances.push({ [messageArguments[1]]: messageArguments[2] });
                             default_instance_object = JSON.stringify(default_instance_object);
                             message.guild.settings.set("guild.reddit.instances", default_instance_object);
+                            initializeInstance(message, messageArguments);
                             console.log("Default created!")
                             message.reply(`First Reddit instance made!`);
                             return;
                         } else {
                             setRedditFromKey(message, messageArguments, messageArguments[1], false);
                             console.log("new instance added")
-                            return;
+                            initializeInstance(message, messageArguments);
                         }
-
-                        //console.log(message.channel.id) gets the ID of current text channel
-                        const daily_time = 'at 08:00am';
-                        const testing_time = 'every 10 seconds';
-                        var sched = later.parse.text(testing_time);
-                        // time default is UTC | 4 hours ahead of FL
-                        later.date.localTime();
-                        var interval_instance = later.setInterval(function () { query_reddit(message, messageArguments[1], interval_instance) }, sched);   // interval_instance.clear() clears timer
+                        //if flag set for startup, put variables in here.
+                        initializeInstance(message, messageArguments);
+                        return;
                     });
                 } else {
                     message.reply(`!!deployreddit <channelID> <redditURL>\nAdds a reddit instance to a given channel.`);
@@ -218,6 +214,17 @@ class DeployReddit extends Commando.Command {
  * 
  * 
  */
+
+function initializeInstance(message, messageArguments) {
+    //console.log(message.channel.id) gets the ID of current text channel
+    const daily_time = 'at 08:00am';
+    const testing_time = 'every 10 seconds';
+    var sched = later.parse.text(testing_time);
+    // time default is UTC | 4 hours ahead of FL
+    later.date.localTime();
+    query_reddit(message, messageArguments[2]);
+    //var interval_instance = later.setInterval(function () { query_reddit(message, messageArguments[2], interval_instance) }, sched);   // interval_instance.clear() clears timer
+}
 
 function removeRedditFromKey(message, messageArguments, channelID) {
     var redditValue = message.guild.settings.get(messageArguments[0], null);
