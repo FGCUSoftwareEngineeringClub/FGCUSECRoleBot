@@ -36,7 +36,7 @@ class DeployReddit extends Commando.Command {
      */
 
     async run(message, args) {
-        const messageArguments = args.split(' ');
+        var messageArguments = args.split(' ');
 
         switch (messageArguments[0]) {
             case '--stop':
@@ -92,65 +92,80 @@ class DeployReddit extends Commando.Command {
                         }
 
                         console.log(messageArguments)
-                        setRedditFromKey(message, messageArguments, messageArguments[1]);
+                        setRedditFromKey(message, messageArguments, messageArguments[1], true);
 
                     });
                 } else {
-                    message.reply(`!!deployreddit --edit <channelID> <redditURL>\nStops the execution of the reddit deployment in the specified channel.`);
+                    message.reply(`!!deployreddit --edit <channelID> <redditURL>\nChanges the given URL of a channel.`);
                 }
                 return;
             case '--status':
                 messageArguments[0] = "guild.reddit.instances"
+                if (messageArguments.length == 2) {
+                    getValueOfReddit(message, messageArguments, messageArguments[1])
+                } else {
+                    message.reply(`!!deployreddit --status <channelID>\nGives information about the given channel with respect to reddit deployment.`);
+                }
+                return;
+            case '--removeall':
+                delete_instances(message);
                 return;
             default:
-                // appending the argument of "r/...." to make a URL
-                if (messageArguments[0].search("reddit.com/") == -1) {
-                    if (messageArguments[0].search("/") == 0) {
-                        messageArguments[0] = "https://www.reddit.com" + messageArguments[0];
-                    } else {
-                        messageArguments[0] = "https://www.reddit.com/" + messageArguments[0];
+                if (messageArguments.length == 2) {
+                    // appending the argument of "r/...." to make a URL
+                    if (messageArguments[1].search("reddit.com/") == -1) {
+                        if (messageArguments[1].search("/") == 0) {
+                            messageArguments[1] = "https://www.reddit.com" + messageArguments[1];
+                        } else {
+                            messageArguments[1] = "https://www.reddit.com/" + messageArguments[1];
+                        }
                     }
+                    const last_char_of_URL = messageArguments[1].charAt(messageArguments[1].length - 1);
+                    switch (last_char_of_URL) {
+                        case '/':
+                            messageArguments[1] += ".json"
+                            break;
+                        default:
+                            messageArguments[1] += "/.json"
+                            break;
+                    }
+                    console.log(messageArguments[1])
+
+
+                    // catching broken link errors
+                    var error_given;
+                    await request(messageArguments[1], async (error, response, html) => {
+                        var json_data;
+                        try {
+                            json_data = await JSON.parse(html)
+                        } catch (e) {
+                            message.say("Sorry, this link did not work.");
+                            return;
+                        }
+                        error_given = json_data.error == '404' ? true : false;
+
+                        if (error) {
+                            message.say("Sorry, this link did not work.");
+                            return;
+                        } else if (error_given == true) {
+                            message.say("Sorry, this link did not work.");
+                            return;
+                        }
+
+                        messageArguments = ["guild.reddit.instances", messageArguments[0], messageArguments[1]];
+                        setRedditFromKey(message, messageArguments, messageArguments[1], false);
+
+                        //console.log(message.channel.id) gets the ID of current text channel
+                        const daily_time = 'at 08:00am';
+                        const testing_time = 'every 10 seconds';
+                        var sched = later.parse.text(testing_time);
+                        // time default is UTC | 4 hours ahead of FL
+                        later.date.localTime();
+                        var interval_instance = later.setInterval(function () { query_reddit(message, messageArguments[1], interval_instance) }, sched);   // interval_instance.clear() clears timer
+                    });
+                } else {
+                    message.reply(`!!deployreddit <channelID> <redditURL>\nAdds a reddit instance to a given channel.`);
                 }
-                const last_char_of_URL = messageArguments[0].charAt(messageArguments[0].length - 1);
-                switch (last_char_of_URL) {
-                    case '/':
-                        messageArguments[0] += ".json"
-                        break;
-                    default:
-                        messageArguments[0] += "/.json"
-                        break;
-                }
-                console.log(messageArguments[0])
-
-
-                // catching broken link errors
-                var error_given;
-                await request(messageArguments[0], async (error, response, html) => {
-                    var json_data;
-                    try {
-                        json_data = await JSON.parse(html)
-                    } catch (e) {
-                        message.say("Sorry, this link did not work.");
-                        return;
-                    }
-                    error_given = json_data.error == '404' ? true : false;
-
-                    if (error) {
-                        message.say("Sorry, this link did not work.");
-                        return;
-                    } else if (error_given == true) {
-                        message.say("Sorry, this link did not work.");
-                        return;
-                    }
-
-                    //console.log(message.channel.id) gets the ID of current text channel
-                    const daily_time = 'at 08:00am';
-                    const testing_time = 'every 10 seconds';
-                    var sched = later.parse.text(testing_time);
-                    // time default is UTC | 4 hours ahead of FL
-                    later.date.localTime();
-                    var interval_instance = later.setInterval(function () { query_reddit(message, messageArguments[0], interval_instance) }, sched);   // interval_instance.clear() clears timer
-                });
                 break;
         }
     }
@@ -204,11 +219,11 @@ function removeRedditFromKey(message, messageArguments, channelID) {
     return undefined;
 }
 
-function setRedditFromKey(message, messageArguments, channelID) {
+function setRedditFromKey(message, messageArguments, channelID, edit) {
     const [redditKey, tempChannelID, newSetting] = messageArguments;
     channelID = tempChannelID;
     status_of_value = getValueOfReddit(message, messageArguments, channelID, true);
-    if (status_of_value === undefined) {
+    if (status_of_value === undefined && edit == true) {
         if (channelID === undefined) {
             channelID = "id" + message.channel.id;
         } else {
@@ -292,7 +307,7 @@ function getValueOfReddit(message, messageArguments, channelID, setting_default)
         return null;
     } else {
         if (setting_default != true) {
-            message.reply(`Value for ${messageArguments[0]} is ${redditValue}`);
+            message.reply(`Value for ${channelID} is ${redditValue}`);
             return redditValue;
         } else {
             return redditValue;
