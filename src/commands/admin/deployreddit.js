@@ -42,7 +42,7 @@ class DeployReddit extends Commando.Command {
             case '--stop':
                 if (messageArguments.length > 1) {
                     messageArguments[0] = "guild.reddit.instances"
-                    setRedditFromKey(message, messageArguments);
+                    setRedditFromKey(message, messageArguments, "12313");
                 } else {
                     messageArguments[0] = "guild.reddit.instances"
                     console.log(getValueOfReddit(message, messageArguments, "12313"))
@@ -133,7 +133,7 @@ class DeployReddit extends Commando.Command {
 
 function setRedditFromKey(message, messageArguments, channelID) {
     const [redditKey, newSetting] = messageArguments;
-    if (getValueOfReddit(message, messageArguments, "12313", true) === undefined) {
+    if (getValueOfReddit(message, messageArguments, channelID, true) === undefined) {
         var default_instance_object = {
             "instances": [
             ]
@@ -147,18 +147,25 @@ function setRedditFromKey(message, messageArguments, channelID) {
         message.reply(`Reddit instances can now be made!`);
         return;
     }
+    if (channelID === undefined) {
+        channelID = "id" + message.channel.id;
+        console.log(channelID)
+    } else {
+        channelID = "id" + channelID;
+        console.log(channelID)
+    }
     var redditValue = message.guild.settings.get(redditKey, null);
     redditValue = JSON.parse(redditValue)
     for (key in redditValue.instances) {
         //console.log(key)
         //console.log(redditValue.instances[0]["id12313"])
-        if (redditValue.instances[key]["id12313"] !== undefined) {
+        if (redditValue.instances[key][channelID] !== undefined) {
             //console.log("Matched!");
-            redditValue.instances[key]["id12313"] = "message argument 6";
+            redditValue.instances[key][channelID] = "message argument 6";
             redditValue = JSON.stringify(redditValue);
             if (typeof redditValue === 'string') {
                 message.guild.settings.set(redditKey, redditValue);
-                message.reply(`${redditKey} was assigned ${JSON.parse(redditValue).instances[key]["id12313"]}`);
+                message.reply(`${redditKey} was assigned ${JSON.parse(redditValue).instances[key][channelID]}`);
                 return redditValue;
             }
             break;
@@ -173,12 +180,14 @@ function setRedditFromKey(message, messageArguments, channelID) {
     }
 }
 
-function delete_instances(message) {
-    console.log(message.guild.settings.remove('guild.reddit.instances', null))
-}
-
 function getValueOfReddit(message, messageArguments, channelID, setting_default) {
-    channelID = "id" + channelID;
+    if (channelID === undefined) {
+        channelID = "id" + message.channel.id;
+        console.log(channelID)
+    } else {
+        channelID = "id" + channelID;
+        console.log(channelID)
+    }
     var redditValue = message.guild.settings.get(messageArguments[0], null);
     if (redditValue == null) {
         if (!setting_default) {
@@ -211,6 +220,10 @@ function getValueOfReddit(message, messageArguments, channelID, setting_default)
             return redditValue;
         }
     }
+}
+
+function delete_instances(message) {
+    console.log(message.guild.settings.remove('guild.reddit.instances', null))
 }
 
 async function query_reddit(message, redditURL, interval_instance) {
