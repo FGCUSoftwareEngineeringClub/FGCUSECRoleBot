@@ -50,69 +50,109 @@ class DeployReddit extends Commando.Command {
                 return;
             case '--edit':
                 messageArguments[0] = "guild.reddit.instances"
-                if (messageArguments[1] !== undefined) {
-                    if (messageArguments[1].length > 0) {
-                        //test the url and replace
+                if (messageArguments.length == 3) {
+                    // appending the argument of "r/...." to make a URL
+                    if (messageArguments[2].search("reddit.com/") == -1) {
+                        if (messageArguments[2].search("/") == 0) {
+                            messageArguments[2] = "https://www.reddit.com" + messageArguments[2];
+                        } else {
+                            messageArguments[2] = "https://www.reddit.com/" + messageArguments[2];
+                        }
                     }
+                    const last_char_of_URL = messageArguments[2].charAt(messageArguments[2].length - 1);
+                    switch (last_char_of_URL) {
+                        case '/':
+                            messageArguments[2] += ".json"
+                            break;
+                        default:
+                            messageArguments[2] += "/.json"
+                            break;
+                    }
+                    console.log(messageArguments[2])
+
+
+                    // catching broken link errors
+                    var error_given;
+                    await request(messageArguments[2], async (error, response, html) => {
+                        var json_data;
+                        try {
+                            json_data = await JSON.parse(html)
+                        } catch (e) {
+                            message.say("Sorry, this link did not work.");
+                            return;
+                        }
+                        error_given = json_data.error == '404' ? true : false;
+
+                        if (error) {
+                            message.say("Sorry, this link did not work.");
+                            return;
+                        } else if (error_given == true) {
+                            message.say("Sorry, this link did not work.");
+                            return;
+                        }
+
+                        console.log(messageArguments)
+                        setRedditFromKey(message, messageArguments, messageArguments[1]);
+
+                    });
                 } else {
-                    //send message about how to edit
+                    message.reply(`!!deployreddit --edit <channelID> <redditURL>\nStops the execution of the reddit deployment in the specified channel.`);
                 }
                 return;
             case '--status':
                 messageArguments[0] = "guild.reddit.instances"
                 return;
             default:
+                // appending the argument of "r/...." to make a URL
+                if (messageArguments[0].search("reddit.com/") == -1) {
+                    if (messageArguments[0].search("/") == 0) {
+                        messageArguments[0] = "https://www.reddit.com" + messageArguments[0];
+                    } else {
+                        messageArguments[0] = "https://www.reddit.com/" + messageArguments[0];
+                    }
+                }
+                const last_char_of_URL = messageArguments[0].charAt(messageArguments[0].length - 1);
+                switch (last_char_of_URL) {
+                    case '/':
+                        messageArguments[0] += ".json"
+                        break;
+                    default:
+                        messageArguments[0] += "/.json"
+                        break;
+                }
+                console.log(messageArguments[0])
+
+
+                // catching broken link errors
+                var error_given;
+                await request(messageArguments[0], async (error, response, html) => {
+                    var json_data;
+                    try {
+                        json_data = await JSON.parse(html)
+                    } catch (e) {
+                        message.say("Sorry, this link did not work.");
+                        return;
+                    }
+                    error_given = json_data.error == '404' ? true : false;
+
+                    if (error) {
+                        message.say("Sorry, this link did not work.");
+                        return;
+                    } else if (error_given == true) {
+                        message.say("Sorry, this link did not work.");
+                        return;
+                    }
+
+                    //console.log(message.channel.id) gets the ID of current text channel
+                    const daily_time = 'at 08:00am';
+                    const testing_time = 'every 10 seconds';
+                    var sched = later.parse.text(testing_time);
+                    // time default is UTC | 4 hours ahead of FL
+                    later.date.localTime();
+                    var interval_instance = later.setInterval(function () { query_reddit(message, messageArguments[0], interval_instance) }, sched);   // interval_instance.clear() clears timer
+                });
                 break;
         }
-
-        // appending the argument of "r/...." to make a URL
-        if (messageArguments[0].search("reddit.com/") == -1) {
-            if (messageArguments[0].search("/") == 0) {
-                messageArguments[0] = "https://www.reddit.com" + messageArguments[0];
-            } else {
-                messageArguments[0] = "https://www.reddit.com/" + messageArguments[0];
-            }
-        }
-        const last_char_of_URL = messageArguments[0].charAt(messageArguments[0].length - 1);
-        switch (last_char_of_URL) {
-            case '/':
-                messageArguments[0] += ".json"
-                break;
-            default:
-                messageArguments[0] += "/.json"
-                break;
-        }
-        console.log(messageArguments[0])
-
-
-        // catching broken link errors
-        var error_given;
-        await request(messageArguments[0], async (error, response, html) => {
-            var json_data;
-            try {
-                json_data = await JSON.parse(html)
-            } catch (e) {
-                message.say("Sorry, this link did not work.");
-                return;
-            }
-            error_given = json_data.error == '404' ? true : false;
-
-            if (error) {
-                message.say("Sorry, this link did not work.");
-                return;
-            } else if (error_given == true) {
-                message.say("Sorry, this link did not work.");
-                return;
-            }
-
-            //console.log(message.channel.id) gets the ID of current text channel
-            const daily_time = 'at 08:00am';
-            const testing_time = 'every 10 seconds';
-            var sched = later.parse.text(testing_time);
-            // time default is UTC | 4 hours ahead of FL
-            later.date.localTime();
-            var interval_instance = later.setInterval(function () { query_reddit(message, messageArguments[0], interval_instance) }, sched);   // interval_instance.clear() clears timer
-        });
     }
 }
 
@@ -165,8 +205,10 @@ function removeRedditFromKey(message, messageArguments, channelID) {
 }
 
 function setRedditFromKey(message, messageArguments, channelID) {
-    const [redditKey, newSetting] = messageArguments;
-    if (getValueOfReddit(message, messageArguments, channelID, true) === undefined) {
+    const [redditKey, tempChannelID, newSetting] = messageArguments;
+    channelID = tempChannelID;
+    status_of_value = getValueOfReddit(message, messageArguments, channelID, true);
+    if (status_of_value === undefined) {
         if (channelID === undefined) {
             channelID = "id" + message.channel.id;
         } else {
@@ -181,6 +223,9 @@ function setRedditFromKey(message, messageArguments, channelID) {
         message.guild.settings.set(redditKey, default_instance_object);
         console.log("Default created!")
         message.reply(`Reddit instances can now be made!`);
+        return;
+    } else if (status_of_value === null) {
+        console.log("ID not found")
         return;
     }
     if (channelID === undefined) {
