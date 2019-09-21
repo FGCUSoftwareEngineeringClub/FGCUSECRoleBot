@@ -166,11 +166,15 @@ class DeployReddit extends Commando.Command {
                             messageArguments[1] = "id" + messageArguments[1];
                         }
 
-                        let key_value_exits = getValueOfReddit(message, messageArguments, messageArguments[1], true) === null ? false : true;
-                        console.log(key_value_exits)
-                        if (key_value_exits) {
-                            message.reply(`${messageArguments[1]} was already found\nTry using "--edit"`);
-                            return;
+                        //checks whether the given channelID already exists
+                        var key_value_exits = message.guild.settings.get(messageArguments[0], null);
+                        key_value_exits = JSON.parse(key_value_exits)
+                        for (var z in key_value_exits.instances) {
+                            console.log(z)
+                            if (key_value_exits.instances[z][messageArguments[1]] !== undefined) {
+                                message.reply(`${messageArguments[1]} was already found\nTry using "--edit"`);
+                                return;
+                            }
                         }
 
                         if (getValueOfReddit(message, messageArguments, messageArguments[1], true) === undefined) {
@@ -353,12 +357,13 @@ function getValueOfReddit(message, messageArguments, channelID, setting_default)
         }
     }
 
-    if (typeof redditValue !== 'string' && setting_default == true) {
+    if (typeof redditValue !== 'string' && setting_default) {
         return null;
     } else if (typeof redditValue !== 'string') {
         message.reply(`The given ID for ${messageArguments[0]} was not found`);
         return null;
-    } else {
+    }
+    else {
         if (setting_default != true) {
             message.reply(`Value for ${channelID} is ${redditValue}`);
             return redditValue;
