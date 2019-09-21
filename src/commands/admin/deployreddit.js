@@ -186,7 +186,7 @@ class DeployReddit extends Commando.Command {
                             initializeInstance(message, messageArguments);
                         }
                         //if flag set for startup, put variables in here.
-                        initializeInstance(message, messageArguments);
+                        //initializeInstance(message, messageArguments);
                         return;
                     });
                 } else {
@@ -224,6 +224,22 @@ function initializeInstance(message, messageArguments) {
     later.date.localTime();
     query_reddit(message, messageArguments[2]);
     //var interval_instance = later.setInterval(function () { query_reddit(message, messageArguments[2], interval_instance) }, sched);   // interval_instance.clear() clears timer
+
+    var redditValue = message.guild.settings.get(messageArguments[0], null);
+    redditValue = JSON.parse(redditValue)
+    for (var counter = 0; counter < redditValue.instances.length; counter++) {
+        for (x in redditValue.instances[counter]) {
+            /**
+             * 
+             * Loop through all of the instances and instatiate them using the startup
+             * 
+             * work normally otherwise
+             * 
+             */
+            console.log(x)
+            redditValue.instances[counter][x] // URL
+        }
+    }
 }
 
 function removeRedditFromKey(message, messageArguments, channelID) {
@@ -365,7 +381,7 @@ function delete_instances(message) {
     console.log(message.guild.settings.remove('guild.reddit.instances', null))
 }
 
-async function query_reddit(message, redditURL, interval_instance) {
+async function query_reddit(message, redditURL) {
     //console.log(redditURL)
     await request(redditURL, (error, response, html) => {
         if (!error && response.statusCode == 200) {

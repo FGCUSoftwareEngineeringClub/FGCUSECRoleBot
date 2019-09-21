@@ -6,8 +6,8 @@ const Commando = require('discord.js-commando');
 
 const Logger = require('./logging/Logger'); // Import logger for tracking bot progress.
 const addDiscordChannelLogger = require('./logging/addDiscordChannelLogger');
-const {setupSettingsProvider} = require('./settings/SettingsProvider');
-const {listenForRoleAssignmentMessages} = require('./events/setUserRoleOnReaction');
+const { setupSettingsProvider } = require('./settings/SettingsProvider');
+const { listenForRoleAssignmentMessages } = require('./events/setUserRoleOnReaction');
 const loadEvents = require('./util/eventLoader');
 
 // Import methods responsible for creating roles in servers as necessary.
@@ -30,7 +30,7 @@ const discordClient = new Commando.CommandoClient({
  * When you want to wait for something that takes time to finish before moving on, you place the
  * 'await' keyword in front of it to have the function wait for that to finish before continuing.
  */
-discordClient.on('ready', async function() {
+discordClient.on('ready', async function () {
   addDiscordChannelLogger(discordClient);
   Logger.debug('FSEC Role Bot logged in as ' + discordClient.user.tag + '!');
 
@@ -63,6 +63,7 @@ discordClient.on('ready', async function() {
    * will be created.
    */
   createServerRoles(discordClient);
+  discordClient.channels.get("619024772898095115").send("HAHAHA!")
 });
 
 discordClient.registry.registerGroups([
