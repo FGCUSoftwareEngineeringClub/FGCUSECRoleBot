@@ -73,7 +73,8 @@ discordClient.on('ready', async function () {
   var redditValue = discordClient
   //var redditValue = message.guild.settings.get(messageArguments[0], null);
   //console.log(discordClient.guilds.get("619024772415881240").settings.get("guild.reddit.instances"))
-  initializeInstance(null, null, discordClient)
+  //discordClient.guilds.keyArray
+  initializeInstance(discordClient)
   // discordClient.channels.get("619024772898095115").send(message_to_embed).then(async function (reply) {
   //   //console.log(reply.id)
   //   reply.channel.fetchMessage(reply.id).then(async function (message_retrieved) {
