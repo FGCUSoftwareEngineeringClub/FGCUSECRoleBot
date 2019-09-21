@@ -1,44 +1,42 @@
 const Discord = require('discord.js');
 const Commando = require('discord.js-commando');
 const Logger = require('../../logging/Logger');
-const { redditKeys, redditNames } = require('../../settings/SettingsProvider');
 const request = require('request');
 var later = require('later');
 
-class DeployReddit extends Commando.Command {
+class PostReddit extends Commando.Command {
     /** @param {Commando.CommandoClient} client */
     constructor(client) {
         super(client, {
-            description: 'Deploys the top img in any subreddit every 24hrs',
+            description: 'Deploys the top img in any subreddit on startup',
             guildOnly: true,
             group: 'admin',
-            memberName: 'deployreddit',
         });
     }
 }
 
-function initializeInstance(message, messageArguments, discordClient) {
+async function initializeInstance(message, messageArguments, discordClient) {
     if (discordClient !== undefined) {
-        var redditValue = discordClient.guilds.get("619024772415881240").settings.get("guild.reddit.instances")
-        redditValue = JSON.parse(redditValue)
+        const daily_time = 'at 08:00am';
+        const testing_time = 'every 20 seconds';
+        var sched = later.parse.text(daily_time);
+        // time default is UTC | 4 hours ahead of FL
+        later.date.localTime();
+        var redditValue = await discordClient.guilds.get("619024772415881240").settings.get("guild.reddit.instances")
+        redditValue = await JSON.parse(redditValue)
         for (var counter = 0; counter < redditValue.instances.length; counter++) {
             for (x in redditValue.instances[counter]) {
-                /**
-                 * 
-                 * Loop through all of the instances and instatiate them using the startup
-                 * 
-                 * work normally otherwise
-                 * 
-                 */
-                console.log(x)
-                redditValue.instances[counter][x] // URL
-                query_reddit(message, redditValue.instances[counter][x], discordClient, x);
+                channelID = x;
+                redditURL = redditValue.instances[counter][x];
+                await query_reddit(redditValue.instances[counter][x], discordClient, x);
+                await later.setInterval(function () { query_reddit(redditURL, discordClient, channelID) }, sched);
+                console.log(1)
             }
         }
     }
 }
 
-async function query_reddit(message, redditURL, discordClient, channelID) {
+async function query_reddit(redditURL, discordClient, channelID) {
     //console.log(redditURL)
     await request(redditURL, (error, response, html) => {
         if (!error && response.statusCode == 200) {
@@ -55,21 +53,6 @@ async function query_reddit(message, redditURL, discordClient, channelID) {
                                 await message_retrieved.react('👎');
                             });
                         });
-                        return;
-                    } else {
-                        const message_to_embed = {
-                            "image": {
-                                "url": json_data.data.children[counter].data.url
-                            }
-                        };
-                        message.embed(message_to_embed).then(async function (reply) {
-                            //console.log(reply.id)
-                            reply.channel.fetchMessage(reply.id).then(async function (message_retrieved) {
-                                await message_retrieved.react('👍');
-                                await message_retrieved.react('👎');
-                            });
-                        });
-                        return;
                         return;
                     }
                 }
