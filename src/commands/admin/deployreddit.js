@@ -159,13 +159,18 @@ class DeployReddit extends Commando.Command {
 
                         messageArguments = ["guild.reddit.instances", messageArguments[0], messageArguments[1]];
 
-                        //if instances doesnt exist, make it exist
-                        // set reddti key
 
                         if (messageArguments[1] === undefined) {
                             messageArguments[1] = "id" + message.channel.id;
                         } else {
                             messageArguments[1] = "id" + messageArguments[1];
+                        }
+
+                        let key_value_exits = getValueOfReddit(message, messageArguments, messageArguments[1], true) === null ? false : true;
+                        console.log(key_value_exits)
+                        if (key_value_exits) {
+                            message.reply(`${messageArguments[1]} was already found\nTry using "--edit"`);
+                            return;
                         }
 
                         if (getValueOfReddit(message, messageArguments, messageArguments[1], true) === undefined) {
@@ -215,15 +220,15 @@ class DeployReddit extends Commando.Command {
  * 
  */
 
-function initializeInstance(message, messageArguments, discordClient) {
+function initializeInstance(message, messageArguments) {
     //console.log(message.channel.id) gets the ID of current text channel
     const daily_time = 'at 08:00am';
-    const testing_time = 'every 10 seconds';
+    const testing_time = 'every 20 seconds';
+    const redditURL = messageArguments[2];
     var sched = later.parse.text(testing_time);
-    // time default is UTC | 4 hours ahead of FL
-    later.date.localTime();
-    query_reddit(message, messageArguments[2], null);
-    //var interval_instance = later.setInterval(function () { query_reddit(message, messageArguments[2], null) }, sched);   // interval_instance.clear() clears timer
+    later.date.localTime(); // time default is UTC | 4 hours ahead of FL
+    //query_reddit(message, redditURL);
+    //later.setInterval(function () { query_reddit(message, redditURL); }, sched);   / / interval_instance.clear() clears timer
 }
 
 function removeRedditFromKey(message, messageArguments, channelID) {
@@ -309,9 +314,9 @@ function setRedditFromKey(message, messageArguments, channelID, edit) {
     // Adding a new ID and value
     var redditValue = message.guild.settings.get(redditKey, null);
     redditValue = JSON.parse(redditValue)
-    console.log("testing testing")
+    //console.log("testing testing")
     redditValue.instances.push({ [channelID]: newSetting });
-    console.log(JSON.stringify(redditValue))
+    //console.log(JSON.stringify(redditValue))
     redditValue = JSON.stringify(redditValue);
     message.guild.settings.set(redditKey, redditValue);
 
@@ -328,7 +333,7 @@ function getValueOfReddit(message, messageArguments, channelID, setting_default)
         }
     }
     var redditValue = message.guild.settings.get(messageArguments[0], null);
-    console.log(redditValue)
+    //console.log(redditValue)
     if (redditValue == null) {
         if (!setting_default) {
             message.reply(`${messageArguments[0]} was not found`);
@@ -338,8 +343,8 @@ function getValueOfReddit(message, messageArguments, channelID, setting_default)
         }
     }
     redditValue = JSON.parse(redditValue)
-    console.log(redditValue)
-    console.log(channelID)
+    //console.log(redditValue)
+    //console.log(channelID)
     for (key in redditValue.instances) {
         if (redditValue.instances[key][channelID] !== undefined) {
             //console.log("Matched!");
@@ -348,7 +353,9 @@ function getValueOfReddit(message, messageArguments, channelID, setting_default)
         }
     }
 
-    if (typeof redditValue !== 'string') {
+    if (typeof redditValue !== 'string' && setting_default == true) {
+        return null;
+    } else if (typeof redditValue !== 'string') {
         message.reply(`The given ID for ${messageArguments[0]} was not found`);
         return null;
     } else {
@@ -366,12 +373,10 @@ function delete_instances(message) {
 }
 
 async function query_reddit(message, redditURL) {
-    //console.log(redditURL)
     await request(redditURL, (error, response, html) => {
         if (!error && response.statusCode == 200) {
             const json_data = JSON.parse(html);
             for (var counter = 0; counter < json_data.data.dist; counter++) {
-                //console.log(json_data.data.children[counter].data.post_hint)
                 if (json_data.data.children[counter].data.post_hint == "image" || linksToImage(json_data.data.children[counter].data.url)) {
                     const message_to_embed = {
                         "image": {
@@ -379,7 +384,6 @@ async function query_reddit(message, redditURL) {
                         }
                     };
                     message.embed(message_to_embed).then(async function (reply) {
-                        //console.log(reply.id)
                         reply.channel.fetchMessage(reply.id).then(async function (message_retrieved) {
                             await message_retrieved.react('👍');
                             await message_retrieved.react('👎');
