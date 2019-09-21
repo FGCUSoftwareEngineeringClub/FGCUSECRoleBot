@@ -169,11 +169,13 @@ class DeployReddit extends Commando.Command {
                         //checks whether the given channelID already exists
                         var key_value_exits = message.guild.settings.get(messageArguments[0], null);
                         key_value_exits = JSON.parse(key_value_exits)
-                        for (var z in key_value_exits.instances) {
-                            console.log(z)
-                            if (key_value_exits.instances[z][messageArguments[1]] !== undefined) {
-                                message.reply(`${messageArguments[1]} was already found\nTry using "--edit"`);
-                                return;
+                        if (key_value_exits !== null) {
+                            for (var z in key_value_exits.instances) {
+                                console.log(z)
+                                if (key_value_exits.instances[z][messageArguments[1]] !== undefined) {
+                                    message.reply(`${messageArguments[1]} was already found\nTry using "--edit"`);
+                                    return;
+                                }
                             }
                         }
 
