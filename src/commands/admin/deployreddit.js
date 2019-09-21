@@ -215,31 +215,15 @@ class DeployReddit extends Commando.Command {
  * 
  */
 
-function initializeInstance(message, messageArguments) {
+function initializeInstance(message, messageArguments, discordClient) {
     //console.log(message.channel.id) gets the ID of current text channel
     const daily_time = 'at 08:00am';
     const testing_time = 'every 10 seconds';
     var sched = later.parse.text(testing_time);
     // time default is UTC | 4 hours ahead of FL
     later.date.localTime();
-    query_reddit(message, messageArguments[2]);
-    //var interval_instance = later.setInterval(function () { query_reddit(message, messageArguments[2], interval_instance) }, sched);   // interval_instance.clear() clears timer
-
-    var redditValue = message.guild.settings.get(messageArguments[0], null);
-    redditValue = JSON.parse(redditValue)
-    for (var counter = 0; counter < redditValue.instances.length; counter++) {
-        for (x in redditValue.instances[counter]) {
-            /**
-             * 
-             * Loop through all of the instances and instatiate them using the startup
-             * 
-             * work normally otherwise
-             * 
-             */
-            console.log(x)
-            redditValue.instances[counter][x] // URL
-        }
-    }
+    query_reddit(message, messageArguments[2], null);
+    //var interval_instance = later.setInterval(function () { query_reddit(message, messageArguments[2], null) }, sched);   // interval_instance.clear() clears timer
 }
 
 function removeRedditFromKey(message, messageArguments, channelID) {
@@ -344,7 +328,7 @@ function getValueOfReddit(message, messageArguments, channelID, setting_default)
         }
     }
     var redditValue = message.guild.settings.get(messageArguments[0], null);
-    console.log(redditValue + "AAAAAAAAAAAAA")
+    console.log(redditValue)
     if (redditValue == null) {
         if (!setting_default) {
             message.reply(`${messageArguments[0]} was not found`);

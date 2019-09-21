@@ -12,6 +12,7 @@ const loadEvents = require('./util/eventLoader');
 
 // Import methods responsible for creating roles in servers as necessary.
 const createServerRoles = require('./events/createServerRoles').run;
+const initializeInstance = require('./commands/admin/postreddit').initializeInstance;
 
 const discordClient = new Commando.CommandoClient({
   owner: Settings.botOwners,
@@ -63,7 +64,23 @@ discordClient.on('ready', async function () {
    * will be created.
    */
   createServerRoles(discordClient);
+  //const message_to_embed = new Discord.RichEmbed().setImage('https://preview.redd.it/d3b8tswrbxn31.jpg?width=640&crop=smart&auto=webp&s=8133c0e5fae51db9bd9eaa583c1989a4d79e0ee7')
+  //message.embed(message_to_embed)
+  //discordClient.channels.get("619024772898095115")
   discordClient.channels.get("619024772898095115").send("HAHAHA!")
+  //DeployReddit.initializeInstance(null, null, discordClient)
+  //.get("guild.reddit.instances", null);
+  var redditValue = discordClient
+  //var redditValue = message.guild.settings.get(messageArguments[0], null);
+  //console.log(discordClient.guilds.get("619024772415881240").settings.get("guild.reddit.instances"))
+  initializeInstance(null, null, discordClient)
+  // discordClient.channels.get("619024772898095115").send(message_to_embed).then(async function (reply) {
+  //   //console.log(reply.id)
+  //   reply.channel.fetchMessage(reply.id).then(async function (message_retrieved) {
+  //     await message_retrieved.react('👍');
+  //     await message_retrieved.react('👎');
+  //   });
+  // });
 });
 
 discordClient.registry.registerGroups([
