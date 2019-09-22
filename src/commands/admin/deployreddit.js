@@ -6,7 +6,6 @@ const request = require('request');
 var later = require('later');
 
 class DeployReddit extends Commando.Command {
-    /** @param {Commando.CommandoClient} client */
     constructor(client) {
         super(client, {
             name: 'deployreddit',
@@ -17,24 +16,6 @@ class DeployReddit extends Commando.Command {
         });
     }
 
-    /**
-     *  TO-DO
-     *  Example Args
-     *  !!deployreddit --stop
-     *      stops execution
-     *  !!deployreddit --edit
-     *      here's how you can edit:
-     *  !!deployreddit --edit https:newlink
-     *      Link updated
-     * !!deployreddit --status
-     *      gives current link, and iteration time
-     * 
-     *  if (!!deployreddit http:link) when an instance is already deployed
-     *      send message to try using --stop or --edit
-     * 
-     *  upon bot reset, if instance was active when shutdown, relauch this instance
-     */
-
     async run(message, args) {
         var messageArguments = args.split(' ');
 
@@ -42,8 +23,7 @@ class DeployReddit extends Commando.Command {
             case '--stop':
                 messageArguments[0] = "guild.reddit.instances"
                 if (messageArguments.length == 2) {
-                    // removes channel key and reddit URL from db
-                    removeRedditFromKey(message, messageArguments, messageArguments[1]);
+                    delete_reddit_instance(message, messageArguments, messageArguments[1]);
                 } else {
                     message.reply(`!!deployreddit --stop <channelID>\nStops the execution of the reddit deployment in the specified channel.`);
                 }
@@ -68,8 +48,6 @@ class DeployReddit extends Commando.Command {
                             messageArguments[2] += "/.json"
                             break;
                     }
-                    console.log(messageArguments[2])
-
 
                     // catching broken link errors
                     var error_given;
@@ -91,8 +69,6 @@ class DeployReddit extends Commando.Command {
                             return;
                         }
 
-                        console.log(messageArguments)
-                        console.log("aa333aa")
                         setRedditFromKey(message, messageArguments, messageArguments[1], true);
 
                     });
@@ -134,7 +110,6 @@ class DeployReddit extends Commando.Command {
                             messageArguments[1] += "/.json"
                             break;
                     }
-                    console.log(messageArguments[1])
 
 
                     // catching broken link errors
@@ -171,9 +146,8 @@ class DeployReddit extends Commando.Command {
                         key_value_exits = JSON.parse(key_value_exits)
                         if (key_value_exits !== null) {
                             for (var z in key_value_exits.instances) {
-                                console.log(z)
                                 if (key_value_exits.instances[z][messageArguments[1]] !== undefined) {
-                                    message.reply(`${messageArguments[1]} was already found\nTry using "--edit"`);
+                                    message.reply(`${messageArguments[1]} was already found\nTry using "--edit" or "--stop`);
                                     return;
                                 }
                             }
@@ -188,16 +162,13 @@ class DeployReddit extends Commando.Command {
                             default_instance_object = JSON.stringify(default_instance_object);
                             message.guild.settings.set("guild.reddit.instances", default_instance_object);
                             initializeInstance(message, messageArguments);
-                            console.log("Default created!")
                             message.reply(`First Reddit instance made!`);
                             return;
                         } else {
                             setRedditFromKey(message, messageArguments, messageArguments[1], false);
-                            console.log("new instance added")
                             initializeInstance(message, messageArguments);
+                            console.log(`${messageArguments[1]} : ${messageArguments[2]} has been added to Reddit instances.`)
                         }
-                        //if flag set for startup, put variables in here.
-                        //initializeInstance(message, messageArguments);
                         return;
                     });
                 } else {
@@ -208,26 +179,7 @@ class DeployReddit extends Commando.Command {
     }
 }
 
-/**
- * 
- * ANY NEW SETTINGS NEED TO BE ADDED TO "SettingsProvider"
- * 
- * 
- *    Method to alter guild.reddit.instance
- array = [["a","b","c"],["d","e","f"],["g","h","i"]]
- console.log(array)
- for (element in array) {
-   if(array[element][0] == "d") {
-     array.splice(element,1)
-   }
- }
- console.log(array)
- * 
- * 
- */
-
 function initializeInstance(message, messageArguments) {
-    //console.log(message.channel.id) gets the ID of current text channel
     const daily_time = 'at 08:00am';
     const testing_time = 'every 20 seconds';
     const redditURL = messageArguments[2];
@@ -237,41 +189,47 @@ function initializeInstance(message, messageArguments) {
     //later.setInterval(function () { query_reddit(message, redditURL); }, sched);   / / interval_instance.clear() clears timer
 }
 
-function removeRedditFromKey(message, messageArguments, channelID) {
-    var redditValue = message.guild.settings.get(messageArguments[0], null);
-    if (redditValue == null) {
-        message.reply(`${messageArguments[0]} was not found`);
+function delete_reddit_instance(message, messageArguments) {
+    const INSTANCE_KEY = messageArguments[0];
+    const CHANNEL_ID = refactor_id(message, messageArguments[1]);
+
+    var instances = message.guild.settings.get(INSTANCE_KEY, null);
+    if (instances == null) {
+        message.reply(`${INSTANCE_KEY} was not found`);
         return undefined;
     }
-    if (channelID === undefined) {
-        channelID = "id" + message.channel.id;
-    } else {
-        channelID = "id" + channelID;
-    }
-    redditValue = JSON.parse(redditValue)
-    console.log(redditValue.instances)
-    for (key in redditValue.instances) {
-        if (redditValue.instances[key][channelID] !== undefined) {
-            redditValue.instances.splice(key, 1);
-            redditValue = JSON.stringify(redditValue);
-            if (typeof redditValue === 'string') {
-                message.guild.settings.set(messageArguments[0], redditValue);
-                message.reply(`${channelID} was removed from this guild`);
+
+    instances = JSON.parse(instances)
+    for (key in instances.instances) {
+        if (instances.instances[key][CHANNEL_ID] !== undefined) {
+            instances.instances.splice(key, 1);
+            const new_instances = JSON.stringify(instances);
+            if (typeof new_instances === 'string') {
+                message.guild.settings.set(INSTANCE_KEY, new_instances);
+                message.reply(`${CHANNEL_ID} was removed from this guild`);
                 return;
             }
             break;
         }
     }
 
-    message.reply(`${channelID} was not found`);
+    message.reply(`${channel_id} was not found`);
     return undefined;
+}
+
+const refactor_id = (message, channel_id) => {
+    if (channel_id === undefined) {
+        channel_id = "id" + message.channel.id;
+    } else {
+        channel_id = "id" + channel_id;
+    }
+    return channel_id;
 }
 
 function setRedditFromKey(message, messageArguments, channelID, edit) {
     const [redditKey, tempChannelID, newSetting] = messageArguments;
     channelID = tempChannelID;
     status_of_value = getValueOfReddit(message, messageArguments, channelID, true);
-    console.log(status_of_value)
     if (status_of_value === undefined && edit == true) {
         if (channelID === undefined) {
             channelID = "id" + message.channel.id;
@@ -290,7 +248,6 @@ function setRedditFromKey(message, messageArguments, channelID, edit) {
         return;
     } else if (status_of_value === null) {
         console.log("ID not found")
-        //return;
     }
 
     if (channelID.search("id") == -1) {
@@ -305,7 +262,6 @@ function setRedditFromKey(message, messageArguments, channelID, edit) {
     redditValue = JSON.parse(redditValue)
     for (key in redditValue.instances) {
         if (redditValue.instances[key][channelID] !== undefined) {
-            //console.log("Matched!");
             redditValue.instances[key][channelID] = newSetting;
             redditValue = JSON.stringify(redditValue);
             if (typeof redditValue === 'string') {
@@ -320,9 +276,7 @@ function setRedditFromKey(message, messageArguments, channelID, edit) {
     // Adding a new ID and value
     var redditValue = message.guild.settings.get(redditKey, null);
     redditValue = JSON.parse(redditValue)
-    //console.log("testing testing")
     redditValue.instances.push({ [channelID]: newSetting });
-    //console.log(JSON.stringify(redditValue))
     redditValue = JSON.stringify(redditValue);
     message.guild.settings.set(redditKey, redditValue);
 
@@ -339,7 +293,6 @@ function getValueOfReddit(message, messageArguments, channelID, setting_default)
         }
     }
     var redditValue = message.guild.settings.get(messageArguments[0], null);
-    //console.log(redditValue)
     if (redditValue == null) {
         if (!setting_default) {
             message.reply(`${messageArguments[0]} was not found`);
@@ -349,11 +302,8 @@ function getValueOfReddit(message, messageArguments, channelID, setting_default)
         }
     }
     redditValue = JSON.parse(redditValue)
-    //console.log(redditValue)
-    //console.log(channelID)
     for (key in redditValue.instances) {
         if (redditValue.instances[key][channelID] !== undefined) {
-            //console.log("Matched!");
             redditValue = redditValue.instances[key][channelID];
             break;
         }
@@ -406,7 +356,6 @@ async function query_reddit(message, redditURL) {
 
 function linksToImage(link) {
     img_extensions = ['jpg', 'png', 'gif']
-    //console.log(link.substr(link.length - 3));
     if (img_extensions.includes(link.substr(link.length - 3))) {
         return true;
     }
