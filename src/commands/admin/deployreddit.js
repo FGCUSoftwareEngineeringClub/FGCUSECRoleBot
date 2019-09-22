@@ -194,26 +194,27 @@ function delete_reddit_instance(message, messageArguments) {
     const CHANNEL_ID = refactor_id(message, messageArguments[1]);
 
     var instances = message.guild.settings.get(INSTANCE_KEY, null);
+
     if (instances == null) {
-        message.reply(`${INSTANCE_KEY} was not found`);
+        message.reply(`${INSTANCE_KEY} was not found.\nTry creating a new instance using "!!deployreddit <channelID> <redditURL>"`);
         return undefined;
     }
 
     instances = JSON.parse(instances)
-    for (key in instances.instances) {
-        if (instances.instances[key][CHANNEL_ID] !== undefined) {
-            instances.instances.splice(key, 1);
+    for (index in instances.instances) {
+        if (instances.instances[index][CHANNEL_ID] !== undefined) {
+            instances.instances.splice(index, 1);
             const new_instances = JSON.stringify(instances);
             if (typeof new_instances === 'string') {
                 message.guild.settings.set(INSTANCE_KEY, new_instances);
-                message.reply(`${CHANNEL_ID} was removed from this guild`);
+                message.reply(`${CHANNEL_ID} was removed from this guild.`);
                 return;
             }
             break;
         }
     }
 
-    message.reply(`${channel_id} was not found`);
+    message.reply(`${CHANNEL_ID} was not in instances.`);
     return undefined;
 }
 
