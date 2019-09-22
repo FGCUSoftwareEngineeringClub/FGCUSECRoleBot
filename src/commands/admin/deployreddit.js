@@ -87,7 +87,7 @@ class DeployReddit extends Commando.Command {
                 }
                 return;
             case '--removeall':
-                delete_instances(message);
+                delete_all_instances(message);
                 let redditValue = message.guild.settings.get("guild.reddit.instances", null);
                 console.log(redditValue);
                 return;
@@ -218,15 +218,6 @@ function delete_reddit_instance(message, messageArguments) {
     return undefined;
 }
 
-const refactor_id = (message, channel_id) => {
-    if (channel_id === undefined) {
-        channel_id = "id" + message.channel.id;
-    } else {
-        channel_id = "id" + channel_id;
-    }
-    return channel_id;
-}
-
 function setRedditFromKey(message, messageArguments, channelID, edit) {
     const [redditKey, tempChannelID, newSetting] = messageArguments;
     channelID = tempChannelID;
@@ -326,22 +317,25 @@ function getValueOfReddit(message, messageArguments, channelID, setting_default)
     }
 }
 
-function delete_instances(message) {
-    console.log(message.guild.settings.remove('guild.reddit.instances', null))
+function delete_all_instances(message) {
+    message.guild.settings.remove('guild.reddit.instances', null);
+    console.log("All instances deleted.")
 }
 
 async function query_reddit(message, redditURL) {
     await request(redditURL, (error, response, html) => {
         if (!error && response.statusCode == 200) {
+
             const json_data = JSON.parse(html);
-            for (var counter = 0; counter < json_data.data.dist; counter++) {
-                if (json_data.data.children[counter].data.post_hint == "image" || linksToImage(json_data.data.children[counter].data.url)) {
-                    const message_to_embed = {
+            for (var index = 0; index < json_data.data.dist; index++) {
+
+                if (json_data.data.children[index].data.post_hint == "image" || links_to_image(json_data.data.children[index].data.url)) {
+                    const image_to_embed = {
                         "image": {
-                            "url": json_data.data.children[counter].data.url
+                            "url": json_data.data.children[index].data.url
                         }
                     };
-                    message.embed(message_to_embed).then(async function (reply) {
+                    message.embed(image_to_embed).then(async function (reply) {
                         reply.channel.fetchMessage(reply.id).then(async function (message_retrieved) {
                             await message_retrieved.react('👍');
                             await message_retrieved.react('👎');
@@ -349,18 +343,30 @@ async function query_reddit(message, redditURL) {
                     });
                     return;
                 }
+
             }
+
         }
     });
-    console.log(new Date());
+    console.log("Reddit post made:", new Date());
 }
 
-function linksToImage(link) {
-    img_extensions = ['jpg', 'png', 'gif']
-    if (img_extensions.includes(link.substr(link.length - 3))) {
+const links_to_image = (link) => {
+    const IMG_EXTENSIONS = ['jpg', 'png', 'gif']
+    const link_extension = link.substr(link.length - 3);
+    if (IMG_EXTENSIONS.includes(link_extension)) {
         return true;
     }
     return false;
+}
+
+const refactor_id = (message, channel_id) => {
+    if (channel_id === undefined) {
+        channel_id = "id" + message.channel.id;
+    } else {
+        channel_id = "id" + channel_id;
+    }
+    return channel_id;
 }
 
 module.exports = DeployReddit;
