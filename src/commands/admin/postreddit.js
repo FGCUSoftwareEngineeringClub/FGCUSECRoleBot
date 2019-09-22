@@ -8,7 +8,7 @@ class PostReddit extends Commando.Command {
     /** @param {Commando.CommandoClient} client */
     constructor(client) {
         super(client, {
-            description: 'Deploys the top img in any subreddit on startup',
+            description: 'Deploys the top img in any subreddit on bot startup',
             guildOnly: true,
             group: 'admin',
         });

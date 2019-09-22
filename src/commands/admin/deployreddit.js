@@ -31,47 +31,11 @@ class DeployReddit extends Commando.Command {
             case '--edit':
                 messageArguments[0] = "guild.reddit.instances"
                 if (messageArguments.length == 3) {
-                    // appending the argument of "r/...." to make a URL
-                    if (messageArguments[2].search("reddit.com/") == -1) {
-                        if (messageArguments[2].search("/") == 0) {
-                            messageArguments[2] = "https://www.reddit.com" + messageArguments[2];
-                        } else {
-                            messageArguments[2] = "https://www.reddit.com/" + messageArguments[2];
-                        }
-                    }
-                    const last_char_of_URL = messageArguments[2].charAt(messageArguments[2].length - 1);
-                    switch (last_char_of_URL) {
-                        case '/':
-                            messageArguments[2] += ".json"
-                            break;
-                        default:
-                            messageArguments[2] += "/.json"
-                            break;
-                    }
 
-                    // catching broken link errors
-                    var error_given;
-                    await request(messageArguments[2], async (error, response, html) => {
-                        var json_data;
-                        try {
-                            json_data = await JSON.parse(html)
-                        } catch (e) {
-                            message.say("Sorry, this link did not work.");
-                            return;
-                        }
-                        error_given = json_data.error == '404' ? true : false;
+                    let link = refactor_link(messageArguments[2]);
+                    messageArguments[2] = link;
+                    if (validated_link(link)) setRedditFromKey(message, messageArguments, messageArguments[1], true);
 
-                        if (error) {
-                            message.say("Sorry, this link did not work.");
-                            return;
-                        } else if (error_given == true) {
-                            message.say("Sorry, this link did not work.");
-                            return;
-                        }
-
-                        setRedditFromKey(message, messageArguments, messageArguments[1], true);
-
-                    });
                 } else {
                     message.reply(`!!deployreddit --edit <channelID> <redditURL>\nChanges the given URL of a channel.`);
                 }
@@ -177,6 +141,50 @@ class DeployReddit extends Commando.Command {
                 break;
         }
     }
+}
+
+const refactor_link = (link) => {
+    // appending the argument of "r/...." to make a URL
+    if (link.search("reddit.com/") == -1) {
+        if (link.search("/") == 0) {
+            link = "https://www.reddit.com" + link;
+        } else {
+            link = "https://www.reddit.com/" + link;
+        }
+    }
+    const last_char_of_URL = link.charAt(link.length - 1);
+    switch (last_char_of_URL) {
+        case '/':
+            link += ".json"
+            break;
+        default:
+            link += "/.json"
+            break;
+    }
+    return link;
+}
+
+const validated_link = async (link) => {
+    var error_given;
+    await request(link, async (error, response, html) => {
+        var json_data;
+        try {
+            json_data = await JSON.parse(html)
+        } catch (e) {
+            message.say("Sorry, this link did not work.");
+            return false;
+        }
+        error_given = json_data.error == '404' ? true : false;
+
+        if (error) {
+            message.say("Sorry, this link did not work.");
+            return false;
+        } else if (error_given == true) {
+            message.say("Sorry, this link did not work.");
+            return false;
+        }
+    });
+    return true;
 }
 
 function initializeInstance(message, messageArguments) {
