@@ -24,21 +24,21 @@ async function initializeInstance(discordClient) {
         later.date.localTime(); // time default is UTC | 4 hours ahead of FL
 
         var guild = discordClient.guilds.keyArray()[0];
-        var redditValue = await discordClient.guilds.get(guild).settings.get("guild.reddit.instances")
-        redditValue = await JSON.parse(redditValue)
-        for (var index = 0; index < redditValue.instances.length; index++) {
-            for (x in redditValue.instances[index]) {
+        var instances = await discordClient.guilds.get(guild).settings.get("guild.reddit.instances")
+        instances = await JSON.parse(instances)
+        for (var index = 0; index < instances.instances.length; index++) {
+            for (x in instances.instances[index]) {
                 var channel_id = x;
-                var redditURL = redditValue.instances[index][x];
-                await query_reddit(redditURL, discordClient, x);
-                //await later.setInterval(function () { query_reddit(redditURL, discordClient, channel_id) }, sched);
+                var reddit_URL = instances.instances[index][x];
+                await query_reddit(discordClient, reddit_URL, x);
+                //await later.setInterval(function () { query_reddit(reddit_URL, discordClient, channel_id) }, sched);
             }
         }
     }
 }
 
-async function query_reddit(redditURL, discordClient, channel_id) {
-    await request(redditURL, (error, response, html) => {
+async function query_reddit(discordClient, reddit_URL, channel_id) {
+    await request(reddit_URL, (error, response, html) => {
         if (!error && response.statusCode == 200) {
 
             const json_data = JSON.parse(html);

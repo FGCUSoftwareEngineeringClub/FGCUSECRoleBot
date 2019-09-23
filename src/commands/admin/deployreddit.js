@@ -89,9 +89,9 @@ class DeployReddit extends Commando.Command {
 }
 
 function initializeInstance(message, reddit_URL) {
-    const daily_time = 'at 08:00am';
-    const testing_time = 'every 20 seconds';
-    var sched = later.parse.text(testing_time);
+    const DAILY_POST_TIME = 'at 08:00am';
+    const TESTING_POST_TIME = 'every 20 seconds';
+    var sched = later.parse.text(TESTING_POST_TIME);
     later.date.localTime(); // time default is UTC | 4 hours ahead of FL
     //query_reddit(message, reddit_URL);
     //later.setInterval(function () { query_reddit(message, reddit_URL); }, sched);   / / interval_instance.clear() clears timer
