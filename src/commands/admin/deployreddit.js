@@ -40,38 +40,43 @@ class DeployReddit extends Commando.Command {
                 }
                 return;
             case '--status':
-                messageArguments[0] = "guild.reddit.instances"
                 if (messageArguments.length == 2) {
-                    getValueOfReddit(message, messageArguments[0], messageArguments[1])
+                    let instance_key = "guild.reddit.instances";
+                    let channel_id = messageArguments[1];
+                    getValueOfReddit(message, instance_key, channel_id);
                 } else {
-                    message.reply(`!!deployreddit --status <channelID>\nGives information about the given channel with respect to reddit deployment.`);
                     //debugging
-                    let instances = message.guild.settings.get("guild.reddit.instances", null);
+                    let instance_key = "guild.reddit.instances";
+                    let instances = message.guild.settings.get(instance_key, null);
                     console.log(instances);
+
+                    message.reply(`!!deployreddit --status <channelID>\nGives information about the given channel with respect to reddit deployment.`);
                 }
                 return;
             case '--removeall':
+                //debugging
+                let instance_key = "guild.reddit.instances";
+                let instances = message.guild.settings.get(instance_key, null);
+                console.log(instances);
+
                 delete_all_instances(message);
-                message.guild.settings.get("guild.reddit.instances", null);
                 return;
             default:
                 if (messageArguments.length == 2) {
-
+                    let instance_key = "guild.reddit.instances"
+                    let channel_id = messageArguments[0];
                     let link = refactor_link(messageArguments[1]);
-                    messageArguments[1] = link;
+
                     if (!validated_link(link)) return;
 
-                    messageArguments = ["guild.reddit.instances", messageArguments[0], messageArguments[1]];
+                    const channel_id = refactor_id(message, channel_id)
 
-                    const channel_id = refactor_id(message, messageArguments[1])
+                    if (does_channel_exist(message, instance_key, channel_id)) return;
 
-                    if (does_channel_exist(message, messageArguments[0], channel_id)) return;
-
-
-                    if (!is_first_instance(message, messageArguments[0], channel_id, messageArguments[2])) {
+                    if (!is_first_instance(message, instance_key, channel_id, link)) {
                         setRedditFromKey(message, messageArguments, channel_id, false);
-                        initializeInstance(message, messageArguments[2]);
-                        console.log(`${channel_id} : ${messageArguments[2]} has been added to Reddit instances.`)
+                        initializeInstance(message, link);
+                        console.log(`${channel_id} : ${link} has been added to Reddit instances.`)
                     }
                     return;
 
@@ -278,7 +283,8 @@ function getValueOfReddit(message, instance_key, channelID, setting_default) {
 }
 
 function delete_all_instances(message) {
-    message.guild.settings.remove('guild.reddit.instances', null);
+    let instance_key = "guild.reddit.instances";
+    message.guild.settings.remove(instance_key, null);
     console.log("All instances deleted.")
 }
 
