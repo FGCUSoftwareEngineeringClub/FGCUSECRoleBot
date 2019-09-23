@@ -34,7 +34,7 @@ class DeployReddit extends Commando.Command {
 
                     let link = refactor_link(messageArguments[2]);
                     messageArguments[2] = link;
-                    if (validated_link(link)) setRedditFromKey(message, messageArguments, messageArguments[1], true);
+                    if (validated_link(link)) updateRedditFromKey(message, messageArguments, messageArguments[1], true);
 
                 } else {
                     message.reply(`!!deployreddit --edit <channelID> <redditURL>\nChanges the given URL of a channel.`);
@@ -52,8 +52,7 @@ class DeployReddit extends Commando.Command {
                 return;
             case '--removeall':
                 delete_all_instances(message);
-                let redditValue = message.guild.settings.get("guild.reddit.instances", null);
-                console.log(redditValue);
+                message.guild.settings.get("guild.reddit.instances", null);
                 return;
             default:
                 if (messageArguments.length == 2) {
@@ -71,7 +70,7 @@ class DeployReddit extends Commando.Command {
 
                     if (!is_first_instance(message, messageArguments[0], channel_id, messageArguments[2])) {
                         setRedditFromKey(message, messageArguments, channel_id, false);
-                        initializeInstance(message, messageArguments);
+                        initializeInstance(message, messageArguments[2]);
                         console.log(`${channel_id} : ${messageArguments[2]} has been added to Reddit instances.`)
                     }
                     return;
@@ -93,7 +92,7 @@ const is_first_instance = (message, instance_key, channel_id, reddit_URL) => {
         default_instance_object.instances.push({ [channel_id]: reddit_URL });
         default_instance_object = JSON.stringify(default_instance_object);
         message.guild.settings.set(instance_key, default_instance_object);
-        initializeInstance(message, messageArguments);
+        initializeInstance(message, reddit_URL);
         message.reply(`First Reddit instance made!`);
         return true;
     }
@@ -157,14 +156,13 @@ const validated_link = async (link) => {
     return true;
 }
 
-function initializeInstance(message, messageArguments) {
+function initializeInstance(message, reddit_URL) {
     const daily_time = 'at 08:00am';
     const testing_time = 'every 20 seconds';
-    const redditURL = messageArguments[2];
     var sched = later.parse.text(testing_time);
     later.date.localTime(); // time default is UTC | 4 hours ahead of FL
-    //query_reddit(message, redditURL);
-    //later.setInterval(function () { query_reddit(message, redditURL); }, sched);   / / interval_instance.clear() clears timer
+    //query_reddit(message, reddit_URL);
+    //later.setInterval(function () { query_reddit(message, reddit_URL); }, sched);   / / interval_instance.clear() clears timer
 }
 
 function delete_reddit_instance(message, messageArguments) {
@@ -196,54 +194,47 @@ function delete_reddit_instance(message, messageArguments) {
     return undefined;
 }
 
-function setRedditFromKey(message, messageArguments, channelID, edit) {
+function updateRedditFromKey(message, messageArguments, channelID, edit) {
     const [redditKey, tempChannelID, newSetting] = messageArguments;
     channelID = tempChannelID;
-    status_of_value = getValueOfReddit(message, redditKey, channelID, true);
-    if (status_of_value === undefined && edit == true) {
-        if (channelID === undefined) {
-            channelID = "id" + message.channel.id;
-        } else {
-            channelID = "id" + channelID;
-        }
-        var default_instance_object = {
-            "instances": [
-            ]
-        };
-        default_instance_object.instances.push({ [channelID]: newSetting });
-        default_instance_object = JSON.stringify(default_instance_object);
-        message.guild.settings.set(redditKey, default_instance_object);
-        console.log("Default created!")
-        message.reply(`Reddit instances can now be made!`);
-        return;
-    } else if (status_of_value === null) {
-        console.log("ID not found")
-    }
 
-    if (channelID.search("id") == -1) {
-        if (channelID === undefined) {
-            channelID = "id" + message.channel.id;
-        } else {
-            channelID = "id" + channelID;
-        }
-    }
+    // else if (status_of_value === null) {
+    //     console.log("ID not found")
+    // }
 
+    channelID = refactor_id(message, channelID)
+    //validate link
+
+    // Altering old value
     var redditValue = message.guild.settings.get(redditKey, null);
     redditValue = JSON.parse(redditValue)
-    for (key in redditValue.instances) {
-        if (redditValue.instances[key][channelID] !== undefined) {
-            redditValue.instances[key][channelID] = newSetting;
+    for (index in redditValue.instances) {
+        if (redditValue.instances[index][channelID] !== undefined) {
+            redditValue.instances[index][channelID] = newSetting;
             redditValue = JSON.stringify(redditValue);
             if (typeof redditValue === 'string') {
+                console.log("altering old val")
                 message.guild.settings.set(redditKey, redditValue);
-                message.reply(`${redditKey} was assigned ${JSON.parse(redditValue).instances[key][channelID]}`);
+                message.reply(`${redditKey} was assigned ${newSetting}`);
                 return redditValue;
             }
             break;
         }
     }
+    return;
+}
 
-    // Adding a new ID and value
+function setRedditFromKey(message, messageArguments, channelID, edit) {
+    const [redditKey, tempChannelID, newSetting] = messageArguments;
+    channelID = tempChannelID;
+
+    // else if (status_of_value === null) {
+    //     console.log("ID not found")
+    // }
+
+    channelID = refactor_id(message, channelID)
+    //validate link
+
     var redditValue = message.guild.settings.get(redditKey, null);
     redditValue = JSON.parse(redditValue)
     redditValue.instances.push({ [channelID]: newSetting });
