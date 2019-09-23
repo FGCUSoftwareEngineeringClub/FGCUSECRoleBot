@@ -34,7 +34,7 @@ class DeployReddit extends Commando.Command {
                     let instance_key = "guild.reddit.instances"
                     let channel_id = messageArguments[1];
                     let link = refactor_link(messageArguments[2]);
-                    if (validated_link(link)) updateRedditFromKey(message, instance_key, link, channel_id);
+                    if (validated_link(message, link)) updateRedditFromKey(message, instance_key, channel_id, link);
                 } else {
                     message.reply(`!!deployreddit --edit <channelID> <redditURL>\nChanges the given URL of a channel.`);
                 }
@@ -46,18 +46,18 @@ class DeployReddit extends Commando.Command {
                     getValueOfReddit(message, instance_key, channel_id);
                 } else {
                     //debugging
-                    let instance_key = "guild.reddit.instances";
-                    let instances = message.guild.settings.get(instance_key, null);
-                    console.log(instances);
+                    //let instance_key = "guild.reddit.instances";
+                    //let instances = message.guild.settings.get(instance_key, null);
+                    //console.log(instances);
 
                     message.reply(`!!deployreddit --status <channelID>\nGives information about the given channel with respect to reddit deployment.`);
                 }
                 return;
             case '--removeall':
                 //debugging
-                let instance_key = "guild.reddit.instances";
-                let instances = message.guild.settings.get(instance_key, null);
-                console.log(instances);
+                //let instance_key = "guild.reddit.instances";
+                //let instances = message.guild.settings.get(instance_key, null);
+                //console.log(instances);
 
                 delete_all_instances(message);
                 return;
@@ -67,14 +67,14 @@ class DeployReddit extends Commando.Command {
                     let channel_id = messageArguments[0];
                     let link = refactor_link(messageArguments[1]);
 
-                    if (!validated_link(link)) return;
+                    if (!validated_link(message, link)) return;
 
-                    const channel_id = refactor_id(message, channel_id)
+                    channel_id = refactor_id(message, channel_id)
 
                     if (does_channel_exist(message, instance_key, channel_id)) return;
 
                     if (!is_first_instance(message, instance_key, channel_id, link)) {
-                        setRedditFromKey(message, messageArguments, channel_id, false);
+                        setRedditFromKey(message, instance_key, channel_id, link);
                         initializeInstance(message, link);
                         console.log(`${channel_id} : ${link} has been added to Reddit instances.`)
                     }
@@ -138,7 +138,7 @@ const refactor_link = (link) => {
     return link;
 }
 
-const validated_link = async (link) => {
+const validated_link = async (message, link) => {
     var error_given;
     await request(link, async (error, response, html) => {
         var json_data;
@@ -198,7 +198,7 @@ function delete_reddit_instance(message, instance_key, channel_id) {
     return undefined;
 }
 
-function updateRedditFromKey(message, instance_key, reddit_URL, channel_id) {
+function updateRedditFromKey(message, instance_key, channel_id, reddit_URL) {
     channel_id = refactor_id(message, channel_id)
 
     // Altering old value
@@ -220,24 +220,14 @@ function updateRedditFromKey(message, instance_key, reddit_URL, channel_id) {
     return;
 }
 
-function setRedditFromKey(message, messageArguments, channelID, edit) {
-    const [redditKey, tempChannelID, newSetting] = messageArguments;
-    channelID = tempChannelID;
-
-    // else if (status_of_value === null) {
-    //     console.log("ID not found")
-    // }
-
-    channelID = refactor_id(message, channelID)
-    //validate link
-
-    var redditValue = message.guild.settings.get(redditKey, null);
+function setRedditFromKey(message, instance_key, channel_id, reddit_URL) {
+    var redditValue = message.guild.settings.get(instance_key, null);
     redditValue = JSON.parse(redditValue)
-    redditValue.instances.push({ [channelID]: newSetting });
+    redditValue.instances.push({ [channel_id]: reddit_URL });
     redditValue = JSON.stringify(redditValue);
-    message.guild.settings.set(redditKey, redditValue);
+    message.guild.settings.set(instance_key, redditValue);
 
-    message.reply(`${channelID} was assigned ${newSetting}`);
+    message.reply(`${channel_id} was assigned ${reddit_URL}`);
     return;
 }
 
