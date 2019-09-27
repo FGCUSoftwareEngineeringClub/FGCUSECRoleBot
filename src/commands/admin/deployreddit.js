@@ -67,6 +67,9 @@ class DeployReddit extends Commando.Command {
           let channelID = messageArguments[0];
           const link = refactorLink(messageArguments[1]);
 
+          let temp = await validatedLink(message, link)
+          console.log(temp);
+          return;
           if (!validatedLink(message, link)) return;
 
           channelID = refactorID(message, channelID);
@@ -286,26 +289,32 @@ const refactorLink = (link) => {
 };
 
 const validatedLink = async (message, link) => {
-  let errorGiven;
   await request(link, async (error, response, html) => {
+    let errorGiven;
     let jsonData;
     try {
       jsonData = await JSON.parse(html);
     } catch (e) {
-      message.say('Sorry, this link did not work.');
+      message.reply('Sorry, this link did not work.\nTry using a link like "r/programmerhumor" or "r/memes"');
       return false;
     }
-    errorGiven = jsonData.error == '404' ? true : false;
+
+    try {
+    errorGiven = (jsonData.data.after == null) ? true : false;
+    } catch (e) {
+      message.reply('Sorry, this link did not work.\nTry using a link like "r/programmerhumor" or "r/memes"');
+      return false;
+    }
 
     if (error) {
-      message.say('Sorry, this link did not work.');
+      message.reply('Sorry, this link did not work.\nTry using a link like "r/programmerhumor" or "r/memes"');
       return false;
     } else if (errorGiven == true) {
-      message.say('Sorry, this link did not work.');
+      message.reply('Sorry, this link did not work.\nTry using a link like "r/programmerhumor" or "r/memes"');
       return false;
     }
   });
-  return true;
+  return;
 };
 
 module.exports = DeployReddit;
