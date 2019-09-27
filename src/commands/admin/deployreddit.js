@@ -1,6 +1,6 @@
 const Commando = require('discord.js-commando');
 const Logger = require('../../logging/Logger');
-const request = require('request');
+const request = require('request-promise');
 const later = require('later');
 
 class DeployReddit extends Commando.Command {
@@ -32,7 +32,7 @@ class DeployReddit extends Commando.Command {
           const instanceKey = 'guild.reddit.instances';
           const channelID = messageArguments[1];
           const link = refactorLink(messageArguments[2]);
-          if (validatedLink(message, link)) {
+          if (await validatedLink(message, link)) {
             updateRedditFromKey(message, instanceKey, channelID, link);
           }
         } else {
@@ -67,10 +67,7 @@ class DeployReddit extends Commando.Command {
           let channelID = messageArguments[0];
           const link = refactorLink(messageArguments[1]);
 
-          let temp = await validatedLink(message, link)
-          console.log(temp);
-          return;
-          if (!validatedLink(message, link)) return;
+          if (validatedLink(message, link) != true) return;
 
           channelID = refactorID(message, channelID);
 
@@ -289,11 +286,11 @@ const refactorLink = (link) => {
 };
 
 const validatedLink = async (message, link) => {
-  await request(link, async (error, response, html) => {
+  await request(link, (error, response, html) => {
     let errorGiven;
     let jsonData;
     try {
-      jsonData = await JSON.parse(html);
+      jsonData = JSON.parse(html);
     } catch (e) {
       message.reply('Sorry, this link did not work.\nTry using a link like "r/programmerhumor" or "r/memes"');
       return false;
@@ -313,8 +310,9 @@ const validatedLink = async (message, link) => {
       message.reply('Sorry, this link did not work.\nTry using a link like "r/programmerhumor" or "r/memes"');
       return false;
     }
-  });
-  return;
+    return;
+  })
+  return true;
 };
 
 module.exports = DeployReddit;
