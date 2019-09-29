@@ -99,10 +99,10 @@ class DeployReddit extends Commando.Command {
 function initializeInstance(message, redditURL) {
   const DAILY_POST_TIME = 'at 08:00am';
   const TESTING_POST_TIME = 'every 20 seconds';
-  const sched = later.parse.text(TESTING_POST_TIME);
+  const schedule = later.parse.text(TESTING_POST_TIME);
   later.date.localTime(); // relative time default is UTC
   // query_reddit(message, redditURL);
-  // later.setInterval(function () { query_reddit(message, redditURL); }, sched);
+  //later.setInterval(function () { query_reddit(message, redditURL); }, schedule);
 }
 
 /**
@@ -197,8 +197,8 @@ function getValueOfReddit(message, instanceKey, channelID) {
 }
 
 function doesDefaultInstanceExist(message, instanceKey, channelID) {
-  const redditValue = message.guild.settings.get(instanceKey, null);
-  return (redditValue == null) ? false : true;
+  const instances = message.guild.settings.get(instanceKey, null);
+  return (instances == null) ? false : true;
 }
 
 function deleteAllInstances(message) {
