@@ -80,7 +80,7 @@ class DeployReddit extends Commando.Command {
 
           if (!isFirstInstance(message, instanceKey, channelID, link)) {
             setRedditFromKey(message, instanceKey, channelID, link);
-            initializeInstance(message, link);
+            initializeInstance(message, link, channelID);
             console.log(`${channelID} : ${link} has been added to Reddit active instances.`);
           }
           return;
@@ -96,13 +96,13 @@ class DeployReddit extends Commando.Command {
  * Launches a Reddit instance upon first creation into
  * specified channel
  */
-function initializeInstance(message, redditURL) {
+function initializeInstance(message, redditURL, channelID) {
   const DAILY_POST_TIME = 'at 08:00am';
   const TESTING_POST_TIME = 'every 20 seconds';
   const schedule = later.parse.text(TESTING_POST_TIME);
   later.date.localTime(); // relative time default is UTC
-  queryReddit(message, redditURL); // one instant deployment
-  later.setInterval(function () { queryReddit(message, redditURL); }, schedule);
+  queryReddit(message, redditURL, channelID); // one instant deployment
+  later.setInterval(function () { queryReddit(message, redditURL, channelID); }, schedule);
 }
 
 /**
@@ -212,8 +212,8 @@ function deleteAllInstances(message) {
 /**
  * Queries Reddit and sends embedded image
  */
-async function queryReddit(message, redditURL) {
-  await request(redditURL, (error, response, html) => {
+async function queryReddit(message, redditURL, channelID) {
+  await request(redditURL, async (error, response, html) => {
     if (!error && response.statusCode == 200) {
       const jsonData = JSON.parse(html);
       for (let index = 0; index < jsonData.data.dist; index++) {
@@ -224,8 +224,9 @@ async function queryReddit(message, redditURL) {
               'url': jsonData.data.children[index].data.url,
             },
           };
-          const channel = message.guild.channels.get("619024772898095115");
-          channel.embed(imageToEmbed).then(async function(reply) {
+          channelID = parseID(channelID);
+          const channel = await message.guild.channels.get(channelID);
+          channel.send({embed: imageToEmbed}).then(async function(reply) {
             reply.channel.fetchMessage(reply.id).then(async function(messageRetrieved) {
               await messageRetrieved.react('👍');
               await messageRetrieved.react('👎');
@@ -236,7 +237,11 @@ async function queryReddit(message, redditURL) {
       }
     }
   });
-  console.log('Reddit post deployed:', new Date());
+  console.log('Reddit post deployed :', new Date());
+}
+
+const parseID = (channelID) => {
+  return channelID.substring(2);
 }
 
 const linksToImage = (link) => {
@@ -266,7 +271,7 @@ const isFirstInstance = (message, instanceKey, channelID, redditURL) => {
     defaultInstanceObject.instances.push({[channelID]: redditURL});
     defaultInstanceObject = JSON.stringify(defaultInstanceObject);
     message.guild.settings.set(instanceKey, defaultInstanceObject);
-    initializeInstance(message, redditURL);
+    initializeInstance(message, redditURL, channelID);
     message.reply(`First Reddit instance has been deployed!`);
     return true;
   }
