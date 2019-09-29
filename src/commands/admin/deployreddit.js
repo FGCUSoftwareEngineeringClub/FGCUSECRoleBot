@@ -11,7 +11,7 @@ const later = require('later');
 class DeployReddit extends Commando.Command {
   constructor(client) {
     super(client, {
-      name: 'deployreddit',
+      name: 'dreddit',
       description: 'Deploys the top img in any subreddit every 24hrs',
       guildOnly: true,
       group: 'admin',
@@ -51,18 +51,18 @@ class DeployReddit extends Commando.Command {
           getValueOfReddit(message, instanceKey, channelID);
         } else {
           // debugging - remove following comments to enable debugging
-          const instanceKey = 'guild.reddit.instances';
-          const instances = message.guild.settings.get(instanceKey, null);
-          console.log(instances);
+          // const instanceKey = 'guild.reddit.instances';
+          // const instances = message.guild.settings.get(instanceKey, null);
+          // console.log(instances);
 
           message.reply(`!!deployreddit --status <channelID>\nGives information about the given channel with respect to reddit deployment.`);
         }
         return;
       case '--removeall':
         // debugging - remove following comments to enable debugging
-        const instanceKey = 'guild.reddit.instances';
-        const instances = message.guild.settings.get(instanceKey, null);
-        console.log(instances);
+        // const instanceKey = 'guild.reddit.instances';
+        // const instances = message.guild.settings.get(instanceKey, null);
+        // console.log(instances);
 
         deleteAllInstances(message);
         return;
@@ -72,7 +72,7 @@ class DeployReddit extends Commando.Command {
           let channelID = messageArguments[0];
           const link = refactorLink(messageArguments[1]);
 
-          if (validatedLink(message, link) != true) return;
+          if (await validatedLink(message, link) != true) return;
 
           channelID = refactorID(message, channelID);
 
@@ -101,8 +101,8 @@ function initializeInstance(message, redditURL) {
   const TESTING_POST_TIME = 'every 20 seconds';
   const schedule = later.parse.text(TESTING_POST_TIME);
   later.date.localTime(); // relative time default is UTC
-  // query_reddit(message, redditURL);
-  //later.setInterval(function () { query_reddit(message, redditURL); }, schedule);
+  queryReddit(message, redditURL); // one instant deployment
+  later.setInterval(function () { queryReddit(message, redditURL); }, schedule);
 }
 
 /**
@@ -156,6 +156,8 @@ function updateRedditFromKey(message, instanceKey, channelID, redditURL) {
       break;
     }
   }
+
+  message.reply(`${channelID} was not in active instances.`);
   return;
 }
 
@@ -222,7 +224,8 @@ async function queryReddit(message, redditURL) {
               'url': jsonData.data.children[index].data.url,
             },
           };
-          message.embed(imageToEmbed).then(async function(reply) {
+          const channel = message.guild.channels.get("619024772898095115");
+          channel.embed(imageToEmbed).then(async function(reply) {
             reply.channel.fetchMessage(reply.id).then(async function(messageRetrieved) {
               await messageRetrieved.react('👍');
               await messageRetrieved.react('👎');

@@ -12,7 +12,7 @@ const loadEvents = require('./util/eventLoader');
 
 // Import methods responsible for creating roles in servers as necessary.
 const createServerRoles = require('./events/createServerRoles').run;
-const initializeInstance = require('./commands/admin/postreddit').initializeInstance;
+const initializeInstance = require('./commands/admin/startupdeployreddit').initializeInstance;
 
 const discordClient = new Commando.CommandoClient({
   owner: Settings.botOwners,
