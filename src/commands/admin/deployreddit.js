@@ -101,8 +101,8 @@ function initializeInstance(message, redditURL, channelID) {
   const TESTING_POST_TIME = 'every 20 seconds';
   const schedule = later.parse.text(TESTING_POST_TIME);
   later.date.localTime(); // relative time default is UTC
-  queryReddit(message, redditURL, channelID); // one instant deployment
-  later.setInterval(function () { queryReddit(message, redditURL, channelID); }, schedule);
+  queryReddit(message, channelID); // one instant deployment
+  later.setInterval(function () { queryReddit(message, channelID); }, schedule);
 }
 
 /**
@@ -212,7 +212,11 @@ function deleteAllInstances(message) {
 /**
  * Queries Reddit and sends embedded image
  */
-async function queryReddit(message, redditURL, channelID) {
+async function queryReddit(message, channelID) {
+  const instanceKey = 'guild.reddit.instances';
+  let instances = await message.guild.settings.get(instanceKey, null);
+  instances = await JSON.parse(instances);
+  const redditURL = instances.instances[0][channelID];
   await request(redditURL, async (error, response, html) => {
     if (!error && response.statusCode == 200) {
       const jsonData = JSON.parse(html);
