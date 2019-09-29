@@ -34,7 +34,7 @@ async function initializeInstance(discordClient) {
  * Queries Reddit and sends embedded image
  */
 async function queryReddit(discordClient, channelID) {
-
+  try {
   let redditURL;
   const guild = discordClient.guilds.keyArray()[0];
   let instances = await discordClient.guilds.get(guild).settings.get('guild.reddit.instances');
@@ -68,9 +68,11 @@ async function queryReddit(discordClient, channelID) {
         }
       }
     }
-    console.log(error)
   });
   console.log(`Reddit post made from ${channelID} :`, new Date());
+} catch(e) {
+  return;
+}
 }
 
 const parseID = (channelID) => {

@@ -213,7 +213,7 @@ function deleteAllInstances(message) {
  * Queries Reddit and sends embedded image
  */
 async function queryReddit(message, channelID) {
-
+try {
   let redditURL;
   const instanceKey = 'guild.reddit.instances';
   let instances = message.guild.settings.get(instanceKey, null);
@@ -249,6 +249,9 @@ async function queryReddit(message, channelID) {
     }
   });
   console.log('Reddit post deployed :', new Date());
+} catch(e) {
+  return;
+}
 }
 
 const parseID = (channelID) => {
