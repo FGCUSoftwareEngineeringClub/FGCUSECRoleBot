@@ -1,11 +1,10 @@
 const Commando = require('discord.js-commando');
-const Logger = require('../../logging/Logger');
 const request = require('request-promise');
 const later = require('later');
 
 /**
  * Sends an embedded message containing the most popular image on a given subreddit at
- * a given time for a selected guild channel, daily. Offers C.R.U.D functionality for 
+ * a given time for a selected guild channel, daily. Offers C.R.U.D functionality for
  * users to be able to manipulate their deployed instances.
  */
 class DeployReddit extends Commando.Command {
@@ -98,11 +97,13 @@ class DeployReddit extends Commando.Command {
  */
 function initializeInstance(message, redditURL, channelID) {
   const DAILY_POST_TIME = 'at 08:00am';
-  const TESTING_POST_TIME = 'every 20 seconds';
-  const schedule = later.parse.text(TESTING_POST_TIME);
+  // const TESTING_POST_TIME = 'every 20 seconds';
+  const schedule = later.parse.text(DAILY_POST_TIME);
   later.date.localTime(); // relative time default is UTC
   queryReddit(message, channelID); // one instant deployment
-  later.setInterval(function () { queryReddit(message, channelID); }, schedule);
+  later.setInterval(function() {
+    queryReddit(message, channelID);
+  }, schedule);
 }
 
 /**
@@ -213,50 +214,50 @@ function deleteAllInstances(message) {
  * Queries Reddit and sends embedded image
  */
 async function queryReddit(message, channelID) {
-try {
-  let redditURL;
-  const instanceKey = 'guild.reddit.instances';
-  let instances = message.guild.settings.get(instanceKey, null);
-  instances = JSON.parse(instances);
-  for (index in instances.instances) {
-    if (instances.instances[index][channelID] !== undefined) {
-      redditURL = instances.instances[index][channelID];
-    }
-  }
-
-  await request(redditURL, async (error, response, html) => {
-    if (!error && response.statusCode == 200) {
-      const jsonData = JSON.parse(html);
-      for (let index = 0; index < jsonData.data.dist; index++) {
-        if (jsonData.data.children[index].data.post_hint == 'image'
-        || linksToImage(jsonData.data.children[index].data.url)) {
-          const imageToEmbed = {
-            'image': {
-              'url': jsonData.data.children[index].data.url,
-            },
-          };
-          channelID = parseID(channelID);
-          const channel = await message.guild.channels.get(channelID);
-          channel.send({embed: imageToEmbed}).then(async function(reply) {
-            reply.channel.fetchMessage(reply.id).then(async function(messageRetrieved) {
-              await messageRetrieved.react('👍');
-              await messageRetrieved.react('👎');
-            });
-          });
-          return;
-        }
+  try {
+    let redditURL;
+    const instanceKey = 'guild.reddit.instances';
+    let instances = message.guild.settings.get(instanceKey, null);
+    instances = JSON.parse(instances);
+    for (index in instances.instances) {
+      if (instances.instances[index][channelID] !== undefined) {
+        redditURL = instances.instances[index][channelID];
       }
     }
-  });
-  console.log('Reddit post deployed :', new Date());
-} catch(e) {
-  return;
-}
+
+    await request(redditURL, async (error, response, html) => {
+      if (!error && response.statusCode == 200) {
+        const jsonData = JSON.parse(html);
+        for (let index = 0; index < jsonData.data.dist; index++) {
+          if (jsonData.data.children[index].data.post_hint == 'image'
+        || linksToImage(jsonData.data.children[index].data.url)) {
+            const imageToEmbed = {
+              'image': {
+                'url': jsonData.data.children[index].data.url,
+              },
+            };
+            channelID = parseID(channelID);
+            const channel = await message.guild.channels.get(channelID);
+            channel.send({embed: imageToEmbed}).then(async function(reply) {
+              reply.channel.fetchMessage(reply.id).then(async function(messageRetrieved) {
+                await messageRetrieved.react('👍');
+                await messageRetrieved.react('👎');
+              });
+            });
+            return;
+          }
+        }
+      }
+    });
+    console.log('Reddit post deployed :', new Date());
+  } catch (e) {
+    return;
+  }
 }
 
 const parseID = (channelID) => {
   return channelID.substring(2);
-}
+};
 
 const linksToImage = (link) => {
   const IMG_EXTENSIONS = ['jpg', 'png', 'gif'];
@@ -338,7 +339,7 @@ const validatedLink = async (message, link) => {
     }
 
     try {
-    errorGiven = (jsonData.data.after == null) ? true : false;
+      errorGiven = (jsonData.data.after == null) ? true : false;
     } catch (e) {
       message.reply('Sorry, this link did not work.\nTry using a link like "r/programmerhumor" or "r/memes"');
       return false;
@@ -352,7 +353,7 @@ const validatedLink = async (message, link) => {
       return false;
     }
     return;
-  })
+  });
   return true;
 };
 
