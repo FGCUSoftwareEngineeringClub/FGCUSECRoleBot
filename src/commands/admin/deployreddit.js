@@ -3,6 +3,11 @@ const Logger = require('../../logging/Logger');
 const request = require('request-promise');
 const later = require('later');
 
+/**
+ * Sends an embedded message containing the most popular image on a given subreddit at
+ * a given time for a selected guild channel, daily. Offers C.R.U.D functionality for 
+ * users to be able to manipulate their deployed instances.
+ */
 class DeployReddit extends Commando.Command {
   constructor(client) {
     super(client, {
@@ -45,7 +50,7 @@ class DeployReddit extends Commando.Command {
           const channelID = refactorID(message, messageArguments[1]);
           getValueOfReddit(message, instanceKey, channelID);
         } else {
-          // debugging
+          // debugging - remove following comments to enable debugging
           const instanceKey = 'guild.reddit.instances';
           const instances = message.guild.settings.get(instanceKey, null);
           console.log(instances);
@@ -54,7 +59,7 @@ class DeployReddit extends Commando.Command {
         }
         return;
       case '--removeall':
-        // debugging
+        // debugging - remove following comments to enable debugging
         const instanceKey = 'guild.reddit.instances';
         const instances = message.guild.settings.get(instanceKey, null);
         console.log(instances);
@@ -76,7 +81,7 @@ class DeployReddit extends Commando.Command {
           if (!isFirstInstance(message, instanceKey, channelID, link)) {
             setRedditFromKey(message, instanceKey, channelID, link);
             initializeInstance(message, link);
-            console.log(`${channelID} : ${link} has been added to Reddit instances.`);
+            console.log(`${channelID} : ${link} has been added to Reddit active instances.`);
           }
           return;
         } else {
@@ -87,15 +92,22 @@ class DeployReddit extends Commando.Command {
   }
 }
 
+/**
+ * Launches a Reddit instance upon first creation into
+ * specified channel
+ */
 function initializeInstance(message, redditURL) {
   const DAILY_POST_TIME = 'at 08:00am';
   const TESTING_POST_TIME = 'every 20 seconds';
   const sched = later.parse.text(TESTING_POST_TIME);
-  later.date.localTime(); // time default is UTC | 4 hours ahead of FL
+  later.date.localTime(); // relative time default is UTC
   // query_reddit(message, redditURL);
   // later.setInterval(function () { query_reddit(message, redditURL); }, sched);
 }
 
+/**
+ * @return undefined if channelID not found or DB not instantiated
+ */
 function deleteRedditInstance(message, instanceKey, channelID) {
   channelID = refactorID(message, channelID);
 
@@ -120,25 +132,26 @@ function deleteRedditInstance(message, instanceKey, channelID) {
     }
   }
 
-  message.reply(`${channelID} was not in instances.`);
+  message.reply(`${channelID} was not in active instances.`);
   return undefined;
 }
 
+/**
+ * @return stringified JSON of instances if update successful
+ */
 function updateRedditFromKey(message, instanceKey, channelID, redditURL) {
   channelID = refactorID(message, channelID);
-
-  // Altering old value
-  let redditValue = message.guild.settings.get(instanceKey, null);
-  redditValue = JSON.parse(redditValue);
-  for (index in redditValue.instances) {
-    if (redditValue.instances[index][channelID] !== undefined) {
-      redditValue.instances[index][channelID] = redditURL;
-      redditValue = JSON.stringify(redditValue);
-      if (typeof redditValue === 'string') {
+  let instances = message.guild.settings.get(instanceKey, null);
+  instances = JSON.parse(instances);
+  for (index in instances.instances) {
+    if (instances.instances[index][channelID] !== undefined) {
+      instances.instances[index][channelID] = redditURL;
+      instances = JSON.stringify(instances);
+      if (typeof instances === 'string') {
         console.log('altering old val');
-        message.guild.settings.set(instanceKey, redditValue);
+        message.guild.settings.set(instanceKey, instances);
         message.reply(`${instanceKey} was assigned ${redditURL}`);
-        return redditValue;
+        return instances;
       }
       break;
     }
@@ -157,26 +170,29 @@ function setRedditFromKey(message, instanceKey, channelID, redditURL) {
   return;
 }
 
+/**
+ * @return undefined if DB not found, null if ID not found, instances string
+ */
 function getValueOfReddit(message, instanceKey, channelID) {
-  let redditValue = message.guild.settings.get(instanceKey, null);
-  if (redditValue == null) {
+  let instances = message.guild.settings.get(instanceKey, null);
+  if (instances == null) {
     message.reply(`${instanceKey} was not found`);
     return undefined;
   }
-  redditValue = JSON.parse(redditValue);
-  for (key in redditValue.instances) {
-    if (redditValue.instances[key][channelID] !== undefined) {
-      redditValue = redditValue.instances[key][channelID];
+  instances = JSON.parse(instances);
+  for (key in instances.instances) {
+    if (instances.instances[key][channelID] !== undefined) {
+      instances = instances.instances[key][channelID];
       break;
     }
   }
 
-  if (typeof redditValue !== 'string') {
+  if (typeof instances !== 'string') {
     message.reply(`The given ID for ${instanceKey} was not found`);
     return null;
   } else {
-    message.reply(`Value for ${channelID} is ${redditValue}`);
-    return redditValue;
+    message.reply(`Value for ${channelID} is ${instances}`);
+    return instances;
   }
 }
 
@@ -191,6 +207,9 @@ function deleteAllInstances(message) {
   console.log('All instances deleted.');
 }
 
+/**
+ * Queries Reddit and sends embedded image
+ */
 async function queryReddit(message, redditURL) {
   await request(redditURL, (error, response, html) => {
     if (!error && response.statusCode == 200) {
@@ -214,7 +233,7 @@ async function queryReddit(message, redditURL) {
       }
     }
   });
-  console.log('Reddit post made:', new Date());
+  console.log('Reddit post deployed:', new Date());
 }
 
 const linksToImage = (link) => {
@@ -245,7 +264,7 @@ const isFirstInstance = (message, instanceKey, channelID, redditURL) => {
     defaultInstanceObject = JSON.stringify(defaultInstanceObject);
     message.guild.settings.set(instanceKey, defaultInstanceObject);
     initializeInstance(message, redditURL);
-    message.reply(`First Reddit instance made!`);
+    message.reply(`First Reddit instance has been deployed!`);
     return true;
   }
   return false;
@@ -257,7 +276,7 @@ const doesChannelExist = (message, instanceKey, channelID) => {
   if (keyValueExits !== null) {
     for (const z in keyValueExits.instances) {
       if (keyValueExits.instances[z][channelID] !== undefined) {
-        message.reply(`${channelID} was already found\nTry using "--edit" or "--stop`);
+        message.reply(`${channelID} was already found in active instances\nTry using "--edit" or "--stop`);
         return true;
       }
     }
