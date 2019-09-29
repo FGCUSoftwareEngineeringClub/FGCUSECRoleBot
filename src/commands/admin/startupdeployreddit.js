@@ -21,10 +21,9 @@ async function initializeInstance(discordClient) {
     for (let index = 0; index < instances.instances.length; index++) {
       for (x in instances.instances[index]) {
         const channelID = x;
-        const redditURL = instances.instances[index][x];
         //await queryReddit(discordClient, redditURL, x); // debugging - instant reply
         await later.setInterval(function() {
-           queryReddit(discordClient, redditURL, channelID);
+           queryReddit(discordClient, channelID);
         }, schedule);
       }
     }
@@ -34,7 +33,18 @@ async function initializeInstance(discordClient) {
 /**
  * Queries Reddit and sends embedded image
  */
-async function queryReddit(discordClient, redditURL, channelID) {
+async function queryReddit(discordClient, channelID) {
+
+  let redditURL;
+  const guild = discordClient.guilds.keyArray()[0];
+  let instances = await discordClient.guilds.get(guild).settings.get('guild.reddit.instances');
+  instances = await JSON.parse(instances);
+  for (index in instances.instances) {
+    if (instances.instances[index][channelID] !== undefined) {
+      redditURL = instances.instances[index][channelID];
+    }
+  }
+
   await request(redditURL, (error, response, html) => {
     if (!error && response.statusCode == 200) {
       const jsonData = JSON.parse(html);

@@ -213,10 +213,17 @@ function deleteAllInstances(message) {
  * Queries Reddit and sends embedded image
  */
 async function queryReddit(message, channelID) {
+
+  let redditURL;
   const instanceKey = 'guild.reddit.instances';
-  let instances = await message.guild.settings.get(instanceKey, null);
-  instances = await JSON.parse(instances);
-  const redditURL = instances.instances[0][channelID];
+  let instances = message.guild.settings.get(instanceKey, null);
+  instances = JSON.parse(instances);
+  for (index in instances.instances) {
+    if (instances.instances[index][channelID] !== undefined) {
+      redditURL = instances.instances[index][channelID];
+    }
+  }
+
   await request(redditURL, async (error, response, html) => {
     if (!error && response.statusCode == 200) {
       const jsonData = JSON.parse(html);
