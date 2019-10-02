@@ -18,6 +18,12 @@ class DeployReddit extends Commando.Command {
     });
   }
 
+  hasPermission(message) {
+    // Use officer role.
+    const isUserAnOfficer = message.member.roles.find((role) => role.name === 'Club Officers');
+    return !!isUserAnOfficer || message.member.permissions.has('ADMINISTRATOR');
+  }
+
   async run(message, args) {
     const messageArguments = args.split(' ');
 
@@ -28,7 +34,7 @@ class DeployReddit extends Commando.Command {
           const channelID = messageArguments[1];
           deleteRedditInstance(message, instanceKey, channelID);
         } else {
-          message.reply(`!!deployreddit --stop <channelID>\nStops the execution of the reddit deployment in the specified channel.`);
+          message.reply(`!!dreddit --stop <channelID>\nStops the execution of the reddit deployment in the specified channel.`);
         }
         return;
       case '--edit':
@@ -40,7 +46,7 @@ class DeployReddit extends Commando.Command {
             updateRedditFromKey(message, instanceKey, channelID, link);
           }
         } else {
-          message.reply(`!!deployreddit --edit <channelID> <redditURL>\nChanges the given URL of a channel.`);
+          message.reply(`!!dreddit --edit <channelID> <redditURL>\nChanges the given URL of a channel.`);
         }
         return;
       case '--status':
@@ -54,7 +60,7 @@ class DeployReddit extends Commando.Command {
           // const instances = message.guild.settings.get(instanceKey, null);
           // console.log(instances);
 
-          message.reply(`!!deployreddit --status <channelID>\nGives information about the given channel with respect to reddit deployment.`);
+          message.reply(`!!dreddit --status <channelID>\nGives information about the given channel with respect to reddit deployment.`);
         }
         return;
       case '--removeall':
@@ -84,7 +90,7 @@ class DeployReddit extends Commando.Command {
           }
           return;
         } else {
-          message.reply(`!!deployreddit <channelID> <redditURL>\nAdds a reddit instance to a given channel.`);
+          message.reply(`!!dreddit <channelID> <redditURL>\nAdds a reddit instance to a given channel.`);
         }
         return;
     }
@@ -115,7 +121,7 @@ function deleteRedditInstance(message, instanceKey, channelID) {
   let instances = message.guild.settings.get(instanceKey, null);
 
   if (instances == null) {
-    message.reply(`${instanceKey} was not found.\nTry creating a new instance using "!!deployreddit <channelID> <redditURL>"`);
+    message.reply(`${instanceKey} was not found.\nTry creating a new instance using "!!dreddit <channelID> <redditURL>"`);
     return undefined;
   }
 
