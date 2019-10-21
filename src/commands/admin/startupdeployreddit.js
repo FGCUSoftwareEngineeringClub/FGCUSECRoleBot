@@ -14,16 +14,18 @@ async function initializeInstance(discordClient) {
 
     later.date.localTime(); // time default is UTC
 
-    const guild = discordClient.guilds.keyArray()[0];
-    let instances = await discordClient.guilds.get(guild).settings.get('guild.reddit.instances');
-    instances = await JSON.parse(instances);
-    for (let index = 0; index < instances.instances.length; index++) {
-      for (x in instances.instances[index]) {
-        const channelID = x;
-        // await queryReddit(discordClient, redditURL, x); // debugging - instant reply
-        await later.setInterval(function() {
-          queryReddit(discordClient, channelID);
-        }, schedule);
+    for (const guildIndex in discordClient.guilds.keyArray()) {
+      guild = discordClient.guilds.keyArray()[guildIndex];
+      let instances = discordClient.guilds.get(guild).settings.get('guild.reddit.instances');
+      instances = JSON.parse(instances);
+      for (let index = 0; index < instances.instances.length; index++) {
+        for (x in instances.instances[index]) {
+          const channelID = x;
+          // await queryReddit(discordClient, redditURL, x); // debugging - instant reply
+          await later.setInterval(function () {
+            queryReddit(discordClient, channelID);
+          }, schedule);
+        }
       }
     }
   }
@@ -49,7 +51,7 @@ async function queryReddit(discordClient, channelID) {
         const jsonData = JSON.parse(html);
         for (let index = 0; index < jsonData.data.dist; index++) {
           if (jsonData.data.children[index].data.post_hint == 'image'
-        || linksToImage(jsonData.data.children[index].data.url)) {
+            || linksToImage(jsonData.data.children[index].data.url)) {
             if (discordClient !== null) {
               const messageToEmbed = new Discord.RichEmbed();
               messageToEmbed.setImage(jsonData.data.children[index].data.url);
@@ -57,8 +59,8 @@ async function queryReddit(discordClient, channelID) {
               // debugging - line below results in all posts on one channel
               // const channel = discordClient.channels.get('619024772898095115');
               const channel = discordClient.channels.get(channelID);
-              channel.send(messageToEmbed).then(async function(reply) {
-                reply.channel.fetchMessage(reply.id).then(async function(messageRetrieved) {
+              channel.send(messageToEmbed).then(async function (reply) {
+                reply.channel.fetchMessage(reply.id).then(async function (messageRetrieved) {
                   await messageRetrieved.react('👍');
                   await messageRetrieved.react('👎');
                 });
@@ -88,4 +90,4 @@ const linksToImage = (link) => {
   return false;
 };
 
-module.exports = {initializeInstance: initializeInstance};
+module.exports = { initializeInstance: initializeInstance };
