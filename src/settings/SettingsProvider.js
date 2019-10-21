@@ -28,12 +28,18 @@ const settingKeys = {
   ROLE_ASSIGNMENT_MESSAGES: 'guild.roles.roleAssignmentMessages',
 };
 
+const redditKeys = {
+  REDDIT_INSTANCES: 'guild.reddit.instances',
+};
+
 /** @type {string[]} */
 const settingNames = Object.getOwnPropertyNames(settingKeys).map((key) => settingKeys[key]);
-
+const redditNames = Object.getOwnPropertyNames(redditKeys).map((key) => redditKeys[key]);
 
 module.exports = {
   setupSettingsProvider,
   settingsKeys: settingKeys,
   settingNames: settingNames,
+  redditKeys: redditKeys,
+  redditNames: redditNames,
 };

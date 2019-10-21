@@ -1,6 +1,6 @@
 // @ts-check
 const Commando = require('discord.js-commando');
-const {settingsKeys, settingNames} = require('../../settings/SettingsProvider');
+const {settingsKeys, settingNames, redditNames, redditKeys} = require('../../settings/SettingsProvider');
 const Discord = require('discord.js');
 const Logger = require('../../logging/Logger');
 
@@ -50,6 +50,8 @@ class SettingsCommand extends Commando.Command {
         return listServerSettings(message, messageArguments);
       case '--listkeys':
         return listSettingKeys(message, messageArguments);
+      case '--listreddit':
+        return listRedditKeys(message, messageArguments);
       case '--remove':
         return removeServerSetting(message, messageArguments);
     }
@@ -127,6 +129,9 @@ function setSettingFromKey(message, messageArguments) {
  * @return {Promise<Discord.Message | Discord.Message[]>}
  */
 function getValueOfSetting(message, messageArguments) {
+  if (!settingNames.includes(messageArguments[0])) {
+    return message.reply(`The key ${messageArguments[0]} does not exist.`);
+  }
   const settingValue = message.guild.settings.get(messageArguments[0], null);
   if (settingValue) {
     return message.reply(`Value for ${messageArguments[0]} is ${settingValue}`);
@@ -145,6 +150,10 @@ function listSettingKeys(message, messageArguments) {
   // Since settings are stored in an object, we need to get the keys inside the object then convert
   // the key to the corresponding value.
   return message.reply(settingNames.join('\n'), {code: true});
+}
+
+function listRedditKeys(message, messageArguments) {
+  return message.reply(redditNames.join('\n'), {code: true});
 }
 
 module.exports = SettingsCommand;

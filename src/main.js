@@ -12,6 +12,7 @@ const loadEvents = require('./util/eventLoader');
 
 // Import methods responsible for creating roles in servers as necessary.
 const createServerRoles = require('./events/createServerRoles').run;
+const initializeInstance = require('./commands/admin/startupdeployreddit').initializeInstance;
 
 const discordClient = new Commando.CommandoClient({
   owner: Settings.botOwners,
@@ -59,10 +60,16 @@ discordClient.on('ready', async function() {
   });
 
   /**
-   * Create server roles if necessary. Any roles that aren't in the server that are in settings
+   * Creates server roles if necessary. Any roles that aren't in the server that are in settings
    * will be created.
    */
   createServerRoles(discordClient);
+
+  /**
+   * Creates instances of all of the channel and URL pairsin reddit instances
+   * within the settings db
+   */
+  initializeInstance(discordClient);
 });
 
 discordClient.registry.registerGroups([
