@@ -24,7 +24,7 @@
     "discord.js-commando": "^0.10.0",
     "dotenv": "^6.1.0",
     "later": "^1.2.0",
-    "moment": "^2.22.2",
+    "moment": "^2.29.4",
     "nedb": "^1.8.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
